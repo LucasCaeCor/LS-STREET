@@ -7,6 +7,7 @@ import { categoryRoutes } from "./modules/categories/category.routes";
 import authPlugin from "./plugins/auth";
 import errorHandlerPlugin from "./plugins/error-handler";
 import swaggerPlugin from "./plugins/swagger";
+import { productVariantRoutes } from "./modules/product-variants/product-variant.routes";
 
 export async function buildApp() {
   const app = Fastify({
@@ -39,6 +40,7 @@ export async function buildApp() {
   await app.register(swaggerPlugin);
   await app.register(authPlugin);
   await app.register(productRoutes);
+  await app.register(productVariantRoutes);
   await app.register(errorHandlerPlugin);
 
   app.get(

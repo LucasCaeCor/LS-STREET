@@ -168,6 +168,80 @@ export class ProductVariantRepository {
     });
   }
 
+  async findProductByPublicId(publicId: string) {
+  return this.prisma.product.findUnique({
+    where: {
+      publicId,
+    },
+    select: {
+      id: true,
+      publicId: true,
+      name: true,
+      slug: true,
+      status: true,
+      category: {
+        select: {
+          isActive: true,
+        },
+      },
+    },
+  });
+}
+
+async combinationExists(
+  productId: string,
+  color: string | null,
+  size: string | null,
+  excludeId?: string,
+) {
+  const variant =
+    await this.prisma.productVariant.findFirst({
+      where: {
+        productId,
+
+        color:
+          color === null
+            ? null
+            : {
+                equals: color,
+                mode: "insensitive",
+              },
+
+        size:
+          size === null
+            ? null
+            : {
+                equals: size,
+                mode: "insensitive",
+              },
+
+        ...(excludeId
+          ? {
+              id: {
+                not: excludeId,
+              },
+            }
+          : {}),
+      },
+
+      select: {
+        id: true,
+      },
+    });
+
+  return variant !== null;
+}
+
+async hasOrderItems(id: string) {
+  const total =
+    await this.prisma.orderItem.count({
+      where: {
+        variantId: id,
+      },
+    });
+
+  return total > 0;
+}
   async listByProduct(
     filters: ListProductVariantsFilters,
   ) {
