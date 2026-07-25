@@ -14,7 +14,9 @@ import { registerProductImageSchemas } from "./docs/schemas/product-image.schema
 import { registerErrorSchemas } from "./docs/schemas/error.schema";
 import { cartRoutes } from "./modules/carts/cart.routes";
 import { addressRoutes } from "./modules/addresses/address.routes";
-
+import {
+  checkoutRoutes,
+} from "./modules/checkout/checkout.routes";
 
 
 
@@ -66,6 +68,9 @@ export async function buildApp() {
 });
   await app.register(addressRoutes, {
   prefix: "/me/addresses",
+});
+  await app.register(checkoutRoutes, {
+  prefix: "/checkout",
 });
 
   await app.register(errorHandlerPlugin);

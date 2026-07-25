@@ -157,7 +157,7 @@ model Address {
   @@index([userId, isDefault])
   @@map("addresses")
 }p("addresses")
-}
+
 
 enum ProductStatus {
   DRAFT
