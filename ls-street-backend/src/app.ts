@@ -8,6 +8,12 @@ import authPlugin from "./plugins/auth";
 import errorHandlerPlugin from "./plugins/error-handler";
 import swaggerPlugin from "./plugins/swagger";
 import { productVariantRoutes } from "./modules/product-variants/product-variant.routes";
+import multipart from "@fastify/multipart";
+import { productImageRoutes } from "./modules/product-images/product-image.routes";
+import { registerProductImageSchemas } from "./docs/schemas/product-image.schema";
+import { registerErrorSchemas } from "./docs/schemas/error.schema";
+
+
 
 export async function buildApp() {
   const app = Fastify({
@@ -28,19 +34,31 @@ export async function buildApp() {
       },
     },
     disableRequestLogging: env.NODE_ENV === "test",
-  });
 
-    
+  });
+    registerProductImageSchemas(app);
+    registerErrorSchemas(app);
   
   await app.register(cors, {
     origin: true,
     credentials: true,
   });
 
+    await app.register(multipart, {
+    limits: {
+        files: 1,
+        fileSize: 5 * 1024 * 1024,
+    },
+
+    throwFileSizeLimit: true,
+    });
+
   await app.register(swaggerPlugin);
   await app.register(authPlugin);
   await app.register(productRoutes);
   await app.register(productVariantRoutes);
+  await app.register(productImageRoutes);
+
   await app.register(errorHandlerPlugin);
 
   app.get(

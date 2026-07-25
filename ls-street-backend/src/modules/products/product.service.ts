@@ -269,7 +269,7 @@ export class ProductService {
         normalizeOptionalText(
           body.seoDescription,
         ) ?? undefined,
-      categoryId: body.categoryId,
+      categoryId: category.id,
     };
 
     return this.repository.create(data);

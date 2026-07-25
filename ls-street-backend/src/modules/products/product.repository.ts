@@ -432,24 +432,23 @@ export class ProductRepository {
     return product !== null;
   }
 
-  async categoryExists(categoryId: string) {
-    const category =
-      await this.prisma.category.findUnique({
+    async categoryExists(categoryId: string) {
+    const category = await this.prisma.category.findUnique({
         where: {
-          id: categoryId,
+        publicId: categoryId,
         },
 
         select: {
-          id: true,
-          publicId: true,
-          name: true,
-          slug: true,
-          isActive: true,
+        id: true,
+        publicId: true,
+        name: true,
+        slug: true,
+        isActive: true,
         },
-      });
+    });
 
     return category;
-  }
+    }
 
   async create(data: CreateProductData) {
     return this.prisma.product.create({

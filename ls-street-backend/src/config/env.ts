@@ -1,5 +1,6 @@
 import { z } from "zod";
 import "dotenv/config";
+
 const envSchema = z.object({
   NODE_ENV: z
     .enum(["development", "test", "production"])
@@ -26,10 +27,33 @@ const envSchema = z.object({
 
   COOKIE_DOMAIN: z.string().optional(),
 
-  API_URL: z.string().url().default("http://localhost:3333"),
+  API_URL: z
+    .string()
+    .url()
+    .default("http://localhost:3333"),
+
+  CLOUDINARY_CLOUD_NAME: z
+    .string()
+    .min(1, "CLOUDINARY_CLOUD_NAME é obrigatório."),
+
+  CLOUDINARY_API_KEY: z
+    .string()
+    .min(1, "CLOUDINARY_API_KEY é obrigatório."),
+
+  CLOUDINARY_API_SECRET: z
+    .string()
+    .min(1, "CLOUDINARY_API_SECRET é obrigatório."),
 
   LOG_LEVEL: z
-    .enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"])
+    .enum([
+      "fatal",
+      "error",
+      "warn",
+      "info",
+      "debug",
+      "trace",
+      "silent",
+    ])
     .default("info"),
 
   SWAGGER_ENABLED: z

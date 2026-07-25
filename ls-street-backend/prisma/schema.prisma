@@ -227,6 +227,7 @@ model ProductImage {
   publicId String @unique @default(cuid())
 
   url                String
+  originalFilename String?
   cloudinaryPublicId String?
   altText            String?
   position           Int     @default(0)
@@ -241,6 +242,7 @@ model ProductImage {
   @@index([productId])
   @@index([productId, position])
   @@map("product_images")
+  @@index([productId, isPrimary])
 }
 
 model ProductVariant {
