@@ -125,8 +125,8 @@ export class ProductService {
     }
   }
 
-  private async ensureProductExists(id: string) {
-    const product = await this.repository.findById(id);
+  private async ensureProductExists(publicId: string) {
+    const product = await this.repository.findByPublicId(publicId);
 
     if (!product) {
       throw new ProductServiceError(
@@ -375,45 +375,43 @@ export class ProductService {
   }
 
   async updateStatus(
-    id: string,
-    body: UpdateProductStatusBody,
-  ) {
-    const product =
-      await this.ensureProductExists(id);
+  publicId: string,
+  body: UpdateProductStatusBody,
+) {
+  const product =
+    await this.ensureProductExists(publicId);
 
-    if (body.status === "ACTIVE") {
-      if (!product.category.isActive) {
-        throw new ProductServiceError(
-          "Não é possível ativar um produto de uma categoria inativa.",
-          {
-            statusCode: 422,
-            code: "INACTIVE_PRODUCT_CATEGORY",
-          },
-        );
-      }
-
-      const hasActiveVariant =
-        product.variants.some(
-          (variant) => variant.isActive,
-        );
-
-      if (!hasActiveVariant) {
-        throw new ProductServiceError(
-          "Adicione pelo menos uma variante ativa antes de ativar o produto.",
-          {
-            statusCode: 422,
-            code: "PRODUCT_WITHOUT_ACTIVE_VARIANT",
-          },
-        );
-      }
+  if (body.status === "ACTIVE") {
+    if (!product.category.isActive) {
+      throw new ProductServiceError(
+        "Não é possível ativar um produto de uma categoria inativa.",
+        {
+          statusCode: 422,
+          code: "INACTIVE_PRODUCT_CATEGORY",
+        },
+      );
     }
 
-    return this.repository.updateStatus(
-      id,
-      body.status as ProductStatus,
+    const hasActiveVariant = product.variants.some(
+      (variant) => variant.isActive,
     );
+
+    if (!hasActiveVariant) {
+      throw new ProductServiceError(
+        "Adicione pelo menos uma variante ativa antes de ativar o produto.",
+        {
+          statusCode: 422,
+          code: "PRODUCT_WITHOUT_ACTIVE_VARIANT",
+        },
+      );
+    }
   }
 
+  return this.repository.updateStatus(
+    product.id,
+    body.status,
+  );
+}
   async updateFeatured(
     id: string,
     body: UpdateProductFeaturedBody,

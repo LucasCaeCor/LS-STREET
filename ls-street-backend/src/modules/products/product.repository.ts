@@ -457,54 +457,50 @@ export class ProductRepository {
     });
   }
 
-  async update(
-    id: string,
-    data: UpdateProductData,
-  ) {
-    return this.prisma.product.update({
-      where: {
-        id,
-      },
+ async update(
+  publicId: string,
+  data: UpdateProductData,
+) {
+  return this.prisma.product.update({
+    where: {
+      publicId,
+    },
+    data,
+    include: productInclude,
+  });
+}
 
-      data,
+async updateStatus(
+  id: string,
+  status: ProductStatus,
+) {
+  return this.prisma.product.update({
+    where: {
+      id,
+    },
 
-      include: productInclude,
-    });
-  }
+    data: {
+      status,
+    },
 
-  async updateStatus(
-    id: string,
-    status: ProductStatus,
-  ) {
-    return this.prisma.product.update({
-      where: {
-        id,
-      },
+    include: productInclude,
+  });
+}
 
-      data: {
-        status,
-      },
-
-      include: productInclude,
-    });
-  }
-
-  async updateFeatured(
-    id: string,
-    isFeatured: boolean,
-  ) {
-    return this.prisma.product.update({
-      where: {
-        id,
-      },
-
-      data: {
-        isFeatured,
-      },
-
-      include: productInclude,
-    });
-  }
+async updateFeatured(
+  publicId: string,
+  isFeatured: boolean,
+) {
+  return this.prisma.product.update({
+    where: {
+      publicId,
+    },
+    data: {
+      isFeatured,
+    },
+    include: productInclude,
+  });
+}
 
   async hasOrderItems(id: string) {
     const total = await this.prisma.orderItem.count({

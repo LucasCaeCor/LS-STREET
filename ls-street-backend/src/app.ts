@@ -12,6 +12,9 @@ import multipart from "@fastify/multipart";
 import { productImageRoutes } from "./modules/product-images/product-image.routes";
 import { registerProductImageSchemas } from "./docs/schemas/product-image.schema";
 import { registerErrorSchemas } from "./docs/schemas/error.schema";
+import { cartRoutes } from "./modules/carts/cart.routes";
+
+
 
 
 
@@ -58,6 +61,9 @@ export async function buildApp() {
   await app.register(productRoutes);
   await app.register(productVariantRoutes);
   await app.register(productImageRoutes);
+  await app.register(cartRoutes, {
+  prefix: "/cart",
+});
 
   await app.register(errorHandlerPlugin);
 

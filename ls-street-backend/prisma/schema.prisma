@@ -227,7 +227,7 @@ model ProductImage {
   publicId String @unique @default(cuid())
 
   url                String
-  originalFilename String?
+  originalFilename   String?
   cloudinaryPublicId String?
   altText            String?
   position           Int     @default(0)
@@ -241,13 +241,13 @@ model ProductImage {
 
   @@index([productId])
   @@index([productId, position])
-  @@map("product_images")
   @@index([productId, isPrimary])
+  @@map("product_images")
 }
 
 model ProductVariant {
   id       String @id @default(auto()) @map("_id") @db.ObjectId
-  publicId String @unique @default(uuid())
+  publicId String @unique @default(cuid())
 
   productId String  @db.ObjectId
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -257,16 +257,12 @@ model ProductVariant {
   color String?
   size  String?
 
-  priceInCents Int
-
+  priceInCents          Int
   compareAtPriceInCents Int?
+  costInCents           Int?
 
-  costInCents Int?
-
-  stock Int @default(0)
-
-  reservedStock Int @default(0)
-
+  stock             Int @default(0)
+  reservedStock     Int @default(0)
   lowStockThreshold Int @default(5)
 
   barcode String?
@@ -279,11 +275,17 @@ model ProductVariant {
 
   isActive Boolean @default(true)
 
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   inventoryMovements InventoryMovement[]
   cartItems          CartItem[]
   orderItems         OrderItem[]
+
+  @@index([productId])
+  @@index([productId, isActive])
+  @@index([stock])
+  @@map("product_variants")
 }
 
 model InventoryMovement {
