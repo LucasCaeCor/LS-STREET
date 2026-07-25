@@ -13,7 +13,7 @@ import { productImageRoutes } from "./modules/product-images/product-image.route
 import { registerProductImageSchemas } from "./docs/schemas/product-image.schema";
 import { registerErrorSchemas } from "./docs/schemas/error.schema";
 import { cartRoutes } from "./modules/carts/cart.routes";
-
+import { addressRoutes } from "./modules/addresses/address.routes";
 
 
 
@@ -63,6 +63,9 @@ export async function buildApp() {
   await app.register(productImageRoutes);
   await app.register(cartRoutes, {
   prefix: "/cart",
+});
+  await app.register(addressRoutes, {
+  prefix: "/me/addresses",
 });
 
   await app.register(errorHandlerPlugin);
