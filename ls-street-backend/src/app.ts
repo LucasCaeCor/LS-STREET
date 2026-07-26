@@ -47,9 +47,10 @@ import {
 import {
   favoriteRoutes,
 } from "./modules/favorites/favorite.routes";
-
-
-
+import auditPlugin from "./plugins/audit";
+import {
+  adminAuditRoutes,
+} from "./modules/audit/admin-audit.routes";
 
 export async function buildApp() {
   const app = Fastify({
@@ -91,6 +92,7 @@ export async function buildApp() {
 
   await app.register(swaggerPlugin);
   await app.register(authPlugin);
+  await app.register(auditPlugin);
   await app.register(productRoutes);
   await app.register(productVariantRoutes);
   await app.register(productImageRoutes);
@@ -171,6 +173,14 @@ await app.register(
     prefix: "/favorites",
   },
 );
+await app.register(
+  adminAuditRoutes,
+  {
+    prefix:
+      "/admin/audit",
+  },
+);
+
 
 
 
