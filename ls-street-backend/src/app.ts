@@ -17,7 +17,9 @@ import { addressRoutes } from "./modules/addresses/address.routes";
 import {
   checkoutRoutes,
 } from "./modules/checkout/checkout.routes";
-
+import {
+  orderRoutes,
+} from "./modules/orders/order.routes";
 
 
 export async function buildApp() {
@@ -71,6 +73,9 @@ export async function buildApp() {
 });
   await app.register(checkoutRoutes, {
   prefix: "/checkout",
+});
+  await app.register(orderRoutes, {
+  prefix: "/orders",
 });
 
   await app.register(errorHandlerPlugin);
