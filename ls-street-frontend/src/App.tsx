@@ -34,7 +34,9 @@ import {
 import {
   ProductsPage,
 } from "./pages/ProductsPage";
-
+import {
+  InventoryPage,
+} from "./pages/InventoryPage";
 
 
 
@@ -104,13 +106,9 @@ export default function App() {
 />
 
           <Route
-            path="estoque"
-            element={
-              <PlaceholderPage
-                title="Estoque"
-              />
-            }
-          />
+  path="estoque"
+  element={<InventoryPage />}
+/>
 
           <Route
             path="pagamentos"
