@@ -2,6 +2,11 @@ import { randomUUID } from "node:crypto";
 
 import { AppError } from "../../core/errors/app-error";
 import { mercadoPagoOrder } from "./mercado-pago";
+import {
+  InvalidWebhookSignatureError,
+  WebhookSignatureValidator,
+} from "mercadopago";
+
 
 interface CreatePixPaymentInput {
   orderNumber: number;
@@ -26,7 +31,135 @@ export interface MercadoPagoPixResult {
   expiresAt: Date | null;
 }
 
+interface ValidateWebhookSignatureInput {
+  xSignature?: string;
+  xRequestId?: string;
+  dataId?: string;
+  secret: string;
+}
+
+export interface MercadoPagoOrderStatusResult {
+  gatewayOrderId: string;
+  gatewayPaymentId: string | null;
+
+  externalReference: string | null;
+
+  orderStatus: string | null;
+  orderStatusDetail: string | null;
+
+  paymentStatus: string | null;
+  paymentStatusDetail: string | null;
+}
+
 export class MercadoPagoGateway {
+
+    validateWebhookSignature(
+  input: ValidateWebhookSignatureInput,
+): void {
+  if (
+    !input.xSignature ||
+    !input.xRequestId ||
+    !input.dataId
+  ) {
+    throw new AppError(
+      "Cabeçalhos do webhook não foram informados.",
+      401,
+      "INVALID_WEBHOOK_HEADERS",
+    );
+  }
+
+  try {
+    WebhookSignatureValidator.validate({
+      xSignature: input.xSignature,
+      xRequestId: input.xRequestId,
+      dataId: input.dataId,
+      secret: input.secret,
+    });
+  } catch (error) {
+    if (
+      error instanceof
+      InvalidWebhookSignatureError
+    ) {
+      throw new AppError(
+        "Assinatura do webhook inválida.",
+        401,
+        "INVALID_WEBHOOK_SIGNATURE",
+      );
+    }
+
+    console.error(
+      "Erro ao validar webhook do Mercado Pago:",
+      error,
+    );
+
+    throw new AppError(
+      "Não foi possível validar o webhook.",
+      401,
+      "WEBHOOK_VALIDATION_ERROR",
+    );
+  }
+}
+
+async getOrderById(
+  gatewayOrderId: string,
+): Promise<MercadoPagoOrderStatusResult> {
+  try {
+    const response =
+      await mercadoPagoOrder.get({
+        id: gatewayOrderId,
+      });
+
+    if (!response.id) {
+      throw new AppError(
+        "Mercado Pago não retornou a order.",
+        502,
+        "MERCADO_PAGO_ORDER_NOT_RETURNED",
+      );
+    }
+
+    const payment =
+      response.transactions
+        ?.payments?.[0];
+
+    return {
+      gatewayOrderId: response.id,
+
+      gatewayPaymentId:
+        payment?.id ?? null,
+
+      externalReference:
+        response.external_reference ??
+        null,
+
+      orderStatus:
+        response.status ?? null,
+
+      orderStatusDetail:
+        response.status_detail ?? null,
+
+      paymentStatus:
+        payment?.status ?? null,
+
+      paymentStatusDetail:
+        payment?.status_detail ?? null,
+    };
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+
+    console.error(
+      "Erro ao consultar order no Mercado Pago:",
+      error,
+    );
+
+    throw new AppError(
+      "Não foi possível consultar o pagamento no Mercado Pago.",
+      502,
+      "MERCADO_PAGO_ORDER_QUERY_ERROR",
+    );
+  }
+}
   async createPixPayment(
     input: CreatePixPaymentInput,
   ): Promise<MercadoPagoPixResult> {

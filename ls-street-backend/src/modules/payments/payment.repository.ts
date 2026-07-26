@@ -1,5 +1,7 @@
 import type {
+  OrderStatus,
   PaymentMethod,
+  PaymentStatus,
   PrismaClient,
 } from "@prisma/client";
 
@@ -22,6 +24,21 @@ interface CreatePaymentInput {
   pixQrCode: string;
   pixQrCodeBase64: string;
   expiresAt: Date | null;
+}
+
+interface UpdatePaymentFromWebhookInput {
+  paymentId: string;
+  orderId: string;
+
+  paymentStatus: PaymentStatus;
+  orderStatus: OrderStatus;
+
+  rawStatus: string | null;
+
+  approvedAt?: Date;
+  cancelledAt?: Date;
+  refundedAt?: Date;
+  paidAt?: Date;
 }
 
 const paymentResponseSelect = {
@@ -58,6 +75,114 @@ export class PaymentRepository {
   constructor(
     private readonly prisma: PrismaClient,
   ) {}
+
+
+  async findByGatewayOrderId(
+  gatewayOrderId: string,
+) {
+  return this.prisma.payment.findFirst({
+    where: {
+      gatewayOrderId,
+    },
+
+    select: {
+      id: true,
+      orderId: true,
+      status: true,
+      rawStatus: true,
+
+      approvedAt: true,
+      cancelledAt: true,
+      refundedAt: true,
+
+      order: {
+        select: {
+          status: true,
+          paidAt: true,
+        },
+      },
+    },
+  });
+}
+
+async updateFromWebhook(
+  input: UpdatePaymentFromWebhookInput,
+) {
+  return this.prisma.$transaction(
+    async (transaction) => {
+      const payment =
+        await transaction.payment.update({
+          where: {
+            id: input.paymentId,
+          },
+
+          data: {
+            status:
+              input.paymentStatus,
+
+            rawStatus:
+              input.rawStatus,
+
+            ...(input.approvedAt
+              ? {
+                  approvedAt:
+                    input.approvedAt,
+                }
+              : {}),
+
+            ...(input.cancelledAt
+              ? {
+                  cancelledAt:
+                    input.cancelledAt,
+                }
+              : {}),
+
+            ...(input.refundedAt
+              ? {
+                  refundedAt:
+                    input.refundedAt,
+                }
+              : {}),
+          },
+
+          select:
+            paymentResponseSelect,
+        });
+
+      const order =
+        await transaction.order.update({
+          where: {
+            id: input.orderId,
+          },
+
+          data: {
+            status:
+              input.orderStatus,
+
+            ...(input.paidAt
+              ? {
+                  paidAt:
+                    input.paidAt,
+                }
+              : {}),
+          },
+
+          select: {
+            id: true,
+            number: true,
+            status: true,
+            paidAt: true,
+            updatedAt: true,
+          },
+        });
+
+      return {
+        payment,
+        order,
+      };
+    },
+  );
+}
 
   async findOrderByNumberAndUserId(
     number: number,

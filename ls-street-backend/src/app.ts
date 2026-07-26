@@ -24,8 +24,17 @@ import {
   adminOrderRoutes,
 } from "./modules/orders/admin-order.routes";
 import {
+  adminDashboardRoutes,
+} from "./modules/admin-dashboard/admin-dashboard.routes";
+import {
   paymentRoutes,
+  paymentWebhookRoutes,
 } from "./modules/payments/payment.routes";
+import {
+  inventoryRoutes,
+} from "./modules/inventory/inventory.routes";
+
+
 
 export async function buildApp() {
   const app = Fastify({
@@ -89,6 +98,28 @@ await app.register(paymentRoutes, {
   await app.register(adminOrderRoutes, {
   prefix: "/admin/orders",
 });
+await app.register(
+  paymentWebhookRoutes,
+  {
+    prefix: "/payments",
+  },
+);
+await app.register(
+  adminDashboardRoutes,
+  {
+    prefix:
+      "/admin/dashboard",
+  },
+);
+await app.register(
+  inventoryRoutes,
+  {
+    prefix:
+      "/admin/inventory",
+  },
+);
+
+
 
   await app.register(errorHandlerPlugin);
 

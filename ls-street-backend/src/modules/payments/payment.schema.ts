@@ -1,6 +1,7 @@
 import { PaymentMethod } from "@prisma/client";
 import { z } from "zod";
 
+
 export const paymentOrderNumberParamsSchema = z.object({
   number: z.coerce
     .number()
@@ -42,6 +43,20 @@ export const createPaymentSchema = z.object({
     });
   }
 });
+
+export interface MercadoPagoWebhookQuery {
+  "data.id"?: string;
+  type?: string;
+}
+
+export interface MercadoPagoWebhookBody {
+  action?: string;
+  type?: string;
+
+  data?: {
+    id?: string;
+  };
+}
 
 export type PaymentOrderNumberParams = z.infer<
   typeof paymentOrderNumberParamsSchema

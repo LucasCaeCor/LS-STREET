@@ -11,6 +11,8 @@ import {
 import type {
   CreatePaymentBody,
   PaymentOrderNumberParams,
+  MercadoPagoWebhookBody,
+MercadoPagoWebhookQuery,
 } from "./payment.schema";
 
 import { PaymentService } from "./payment.service";
@@ -20,7 +22,57 @@ export class PaymentController {
     private readonly service:
       PaymentService,
   ) {}
+webhook = async (
+  request: FastifyRequest<{
+    Querystring:
+      MercadoPagoWebhookQuery;
 
+    Body:
+      MercadoPagoWebhookBody;
+  }>,
+  reply: FastifyReply,
+) => {
+  const signatureHeader =
+    request.headers["x-signature"];
+
+  const requestIdHeader =
+    request.headers["x-request-id"];
+
+  const xSignature =
+    Array.isArray(signatureHeader)
+      ? signatureHeader[0]
+      : signatureHeader;
+
+  const xRequestId =
+    Array.isArray(requestIdHeader)
+      ? requestIdHeader[0]
+      : requestIdHeader;
+
+  const dataId =
+    request.query["data.id"] ??
+    request.body?.data?.id;
+
+  const type =
+    request.query.type ??
+    request.body?.type;
+
+  const result =
+    await this.service
+      .processMercadoPagoWebhook({
+        xSignature,
+        xRequestId,
+        dataId,
+        type,
+      });
+
+  return reply.status(200).send({
+    received: true,
+    processed:
+      result.processed,
+    ignored:
+      result.ignored,
+  });
+};
   create = async (
     request: FastifyRequest<{
       Params: PaymentOrderNumberParams;

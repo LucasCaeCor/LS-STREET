@@ -15,6 +15,8 @@ import {
   paymentOrderNumberParamsSchema,
   type CreatePaymentBody,
   type PaymentOrderNumberParams,
+  type MercadoPagoWebhookBody,
+type MercadoPagoWebhookQuery,
 } from "./payment.schema";
 
 import { PaymentService } from "./payment.service";
@@ -73,5 +75,35 @@ export async function paymentRoutes(
       ],
     },
     controller.findLatest,
+  );
+}
+
+export async function paymentWebhookRoutes(
+  fastify: FastifyInstance,
+) {
+  const repository =
+    new PaymentRepository(prisma);
+
+  const mercadoPagoGateway =
+    new MercadoPagoGateway();
+
+  const service =
+    new PaymentService(
+      repository,
+      mercadoPagoGateway,
+    );
+
+  const controller =
+    new PaymentController(service);
+
+  fastify.post<{
+    Querystring:
+      MercadoPagoWebhookQuery;
+
+    Body:
+      MercadoPagoWebhookBody;
+  }>(
+    "/webhook/mercado-pago",
+    controller.webhook,
   );
 }
