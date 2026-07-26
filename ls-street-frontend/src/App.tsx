@@ -37,7 +37,9 @@ import {
 import {
   InventoryPage,
 } from "./pages/InventoryPage";
-
+import {
+  PaymentsPage,
+} from "./pages/PaymentsPage";
 
 
 
@@ -111,13 +113,9 @@ export default function App() {
 />
 
           <Route
-            path="pagamentos"
-            element={
-              <PlaceholderPage
-                title="Pagamentos"
-              />
-            }
-          />
+  path="pagamentos"
+  element={<PaymentsPage />}
+/>
 
           <Route
             path="cupons"
