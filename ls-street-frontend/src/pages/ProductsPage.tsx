@@ -15,6 +15,11 @@ import {
   Star,
   X,
 } from "lucide-react";
+import {
+  ProductVariantsModal,
+} from "../components/ProductVariantsModal";
+
+
 
 import {
   useCallback,
@@ -77,6 +82,9 @@ const initialFilters: ProductFilters = {
   sortBy: "createdAt",
   sortOrder: "desc",
 };
+
+
+
 
 const initialForm: ProductForm = {
   name: "",
@@ -198,6 +206,15 @@ function getAvailableStock(
 export function ProductsPage() {
   const [products, setProducts] =
     useState<Product[]>([]);
+
+
+    const [
+  variantsProduct,
+  setVariantsProduct,
+] =
+  useState<Product | null>(
+    null,
+  );
 
   const [
     categories,
@@ -1352,13 +1369,25 @@ export function ProductsPage() {
 
                       <button
                         type="button"
-                        className="disabled-product-action"
-                        disabled
-                        title="Disponível na próxima etapa"
-                      >
+                        disabled={
+                            product.status ===
+                            "ARCHIVED"
+                        }
+                        title={
+                            product.status ===
+                            "ARCHIVED"
+                            ? "Produtos arquivados não podem receber variações"
+                            : undefined
+                        }
+                        onClick={() =>
+                            setVariantsProduct(
+                            product,
+                            )
+                        }
+                        >
                         <Package size={16} />
                         Variações
-                      </button>
+                        </button>
                     </footer>
                   </article>
                 );
@@ -1787,7 +1816,21 @@ export function ProductsPage() {
             </form>
           </section>
         </div>
+      
       )}
+      <ProductVariantsModal
+        product={variantsProduct}
+        open={Boolean(
+            variantsProduct,
+        )}
+        onClose={() =>
+            setVariantsProduct(null)
+        }
+        onChanged={
+            loadProducts
+        }
+        />
     </div>
+    
   );
 }
