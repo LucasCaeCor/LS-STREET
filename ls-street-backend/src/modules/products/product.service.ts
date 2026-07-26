@@ -301,7 +301,10 @@ export class ProductService {
         );
       }
 
-      await this.ensureSlugAvailable(slug, id);
+      await this.ensureSlugAvailable(
+  slug,
+  product.id,
+);
       data.slug = slug;
     } else if (
       body.name !== undefined &&
@@ -310,9 +313,9 @@ export class ProductService {
       const generatedSlug = normalizeSlug(body.name);
 
       await this.ensureSlugAvailable(
-        generatedSlug,
-        id,
-      );
+  generatedSlug,
+  product.id,
+);
 
       data.slug = generatedSlug;
     }
@@ -368,7 +371,7 @@ export class ProductService {
         );
       }
 
-      data.categoryId = body.categoryId;
+      data.categoryId = category.id;
     }
 
     return this.repository.update(id, data);
