@@ -73,8 +73,9 @@ export function AuthProvider({
     }, []);
 
   useEffect(() => {
-    void loadCurrentUser();
-  }, [loadCurrentUser]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  void loadCurrentUser();
+}, [loadCurrentUser]);
 
   async function login(
     input: LoginInput,
@@ -139,7 +140,7 @@ export function AuthProvider({
     </AuthContext.Provider>
   );
 }
-
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context =
     useContext(AuthContext);

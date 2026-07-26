@@ -24,6 +24,10 @@ import {
   NotFoundPage,
 } from "./pages/NotFoundPage";
 
+import {
+  OrdersPage,
+} from "./pages/OrdersPage";
+
 function PlaceholderPage({
   title,
 }: {
@@ -72,13 +76,9 @@ export default function App() {
           />
 
           <Route
-            path="pedidos"
-            element={
-              <PlaceholderPage
-                title="Pedidos"
-              />
-            }
-          />
+  path="pedidos"
+  element={<OrdersPage />}
+/>
 
           <Route
             path="produtos"

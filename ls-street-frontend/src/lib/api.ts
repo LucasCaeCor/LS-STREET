@@ -168,13 +168,15 @@ export async function apiRequest<T>(
   }
 
   if (!response.ok) {
-    let body: ApiErrorBody = {};
+    let body: ApiErrorBody;
 
-    try {
-      body = await response.json();
-    } catch {
-      body = {};
-    }
+try {
+  body =
+    (await response.json()) as
+      ApiErrorBody;
+} catch {
+  body = {};
+}
 
     throw new ApiError(
       body.message ??
