@@ -40,6 +40,16 @@ import {
   adminCouponRoutes,
   couponRoutes,
 } from "./modules/coupons/coupon.routes";
+import {
+  adminBannerRoutes,
+  bannerRoutes,
+} from "./modules/banners/banner.routes";
+import {
+  favoriteRoutes,
+} from "./modules/favorites/favorite.routes";
+
+
+
 
 export async function buildApp() {
   const app = Fastify({
@@ -136,13 +146,34 @@ await app.register(
     prefix: "/coupons",
   },
 );
-
 await app.register(
   adminCouponRoutes,
   {
     prefix: "/admin/coupons",
   },
 );
+await app.register(
+  bannerRoutes,
+  {
+    prefix: "/banners",
+  },
+);
+await app.register(
+  adminBannerRoutes,
+  {
+    prefix:
+      "/admin/banners",
+  },
+);
+await app.register(
+  favoriteRoutes,
+  {
+    prefix: "/favorites",
+  },
+);
+
+
+
 
 
 
