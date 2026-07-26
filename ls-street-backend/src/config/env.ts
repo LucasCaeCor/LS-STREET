@@ -11,6 +11,10 @@ const envSchema = z.object({
 
   DATABASE_URL: z.string().min(1),
 
+  MERCADO_PAGO_ACCESS_TOKEN: z
+  .string()
+  .min(1, "MERCADO_PAGO_ACCESS_TOKEN é obrigatório."),
+
   JWT_ACCESS_SECRET: z.string().min(32),
   JWT_ACCESS_EXPIRES_IN: z.string().default("15m"),
 
@@ -43,6 +47,7 @@ const envSchema = z.object({
   CLOUDINARY_API_SECRET: z
     .string()
     .min(1, "CLOUDINARY_API_SECRET é obrigatório."),
+
 
   LOG_LEVEL: z
     .enum([

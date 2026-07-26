@@ -5,6 +5,9 @@ import { prisma } from "../../database/prisma";
 import { CartRepository } from "./cart.repository";
 import { CartService } from "./cart.service";
 import { CartController } from "./cart.controller";
+interface CartItemParams {
+  itemId: string;
+}
 
 export async function cartRoutes(
   fastify: FastifyInstance,
@@ -29,7 +32,9 @@ export async function cartRoutes(
     controller.addItem.bind(controller),
   );
 
-  fastify.patch(
+  fastify.patch<{
+  Params: CartItemParams;
+}>(
     "/items/:itemId",
     {
       preHandler: [fastify.authenticate],
@@ -37,7 +42,9 @@ export async function cartRoutes(
     controller.updateItem.bind(controller),
   );
 
-  fastify.delete(
+  fastify.delete<{
+  Params: CartItemParams;
+}>(
     "/items/:itemId",
     {
       preHandler: [fastify.authenticate],

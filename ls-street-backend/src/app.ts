@@ -20,7 +20,12 @@ import {
 import {
   orderRoutes,
 } from "./modules/orders/order.routes";
-
+import {
+  adminOrderRoutes,
+} from "./modules/orders/admin-order.routes";
+import {
+  paymentRoutes,
+} from "./modules/payments/payment.routes";
 
 export async function buildApp() {
   const app = Fastify({
@@ -76,6 +81,13 @@ export async function buildApp() {
 });
   await app.register(orderRoutes, {
   prefix: "/orders",
+});
+await app.register(paymentRoutes, {
+  prefix: "/orders",
+});
+
+  await app.register(adminOrderRoutes, {
+  prefix: "/admin/orders",
 });
 
   await app.register(errorHandlerPlugin);

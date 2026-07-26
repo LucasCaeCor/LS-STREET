@@ -6,6 +6,10 @@ import { AddressRepository } from "./address.repository";
 import { AddressService } from "./address.service";
 import { AddressController } from "./address.controller";
 
+
+interface AddressParams {
+  addressId: string;
+}
 export async function addressRoutes(
   fastify: FastifyInstance,
 ) {
@@ -35,27 +39,33 @@ export async function addressRoutes(
     controller.create.bind(controller),
   );
 
-  fastify.put(
-    "/:addressId",
-    {
-      preHandler: [fastify.authenticate],
-    },
-    controller.update.bind(controller),
-  );
+  fastify.put<{
+  Params: AddressParams;
+}>(
+  "/:addressId",
+  {
+    preHandler: [fastify.authenticate],
+  },
+  controller.update.bind(controller),
+);
 
-  fastify.patch(
-    "/:addressId/default",
-    {
-      preHandler: [fastify.authenticate],
-    },
-    controller.setDefault.bind(controller),
-  );
+fastify.patch<{
+  Params: AddressParams;
+}>(
+  "/:addressId/default",
+  {
+    preHandler: [fastify.authenticate],
+  },
+  controller.setDefault.bind(controller),
+);
 
-  fastify.delete(
-    "/:addressId",
-    {
-      preHandler: [fastify.authenticate],
-    },
-    controller.delete.bind(controller),
-  );
+fastify.delete<{
+  Params: AddressParams;
+}>(
+  "/:addressId",
+  {
+    preHandler: [fastify.authenticate],
+  },
+  controller.delete.bind(controller),
+);
 }

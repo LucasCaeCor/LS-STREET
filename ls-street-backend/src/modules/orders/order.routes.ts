@@ -7,7 +7,9 @@ import { prisma } from "../../database/prisma";
 import { OrderController } from "./order.controller";
 import { OrderRepository } from "./order.repository";
 import { OrderService } from "./order.service";
-
+interface OrderNumberParams {
+  number: string;
+}
 export async function orderRoutes(
   fastify: FastifyInstance,
 ) {
@@ -30,7 +32,9 @@ export async function orderRoutes(
     controller.list.bind(controller),
   );
 
-  fastify.get(
+  fastify.get<{
+  Params: OrderNumberParams;
+}>(
     "/:number",
     {
       preHandler: [

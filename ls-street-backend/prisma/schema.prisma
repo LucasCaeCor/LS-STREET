@@ -39,7 +39,7 @@ enum PaymentStatus {
   CHARGED_BACK
 }
 
-enum PaymentGateway {
+enum Gateway {
   MERCADO_PAGO
 }
 
@@ -105,9 +105,6 @@ model User {
   @@map("users")
 }
 
-
-
-
 model RefreshToken {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
   tokenHash String  @unique
@@ -142,7 +139,7 @@ model Address {
   neighborhood String
   city         String
   state        String
-  country      String @default("Brasil")
+  country      String  @default("Brasil")
 
   label     String?
   isDefault Boolean @default(false)
@@ -152,12 +149,12 @@ model Address {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  orders    Order[]
 
   @@index([userId])
   @@index([userId, isDefault])
   @@map("addresses")
-}p("addresses")
-
+}
 
 enum ProductStatus {
   DRAFT
@@ -424,30 +421,36 @@ model OrderItem {
 }
 
 model Payment {
-  id                  String         @id @default(auto()) @map("_id") @db.ObjectId
-  gateway             PaymentGateway @default(MERCADO_PAGO)
-  method              PaymentMethod?
-  status              PaymentStatus  @default(PENDING)
-  gatewayPaymentId    String?        @unique
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  gateway Gateway
+  method  PaymentMethod
+  status  PaymentStatus
+
+  amountInCents Int
+  installments  Int?
+
+  gatewayPaymentId    String?
   gatewayPreferenceId String?
-  amountInCents       Int
-  installments        Int?
-  externalReference   String?
-  rawStatus           String?
-  approvedAt          DateTime?
-  cancelledAt         DateTime?
-  refundedAt          DateTime?
-  createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @updatedAt
+  gatewayOrderId      String?
+
+  externalReference String?
+  rawStatus         String?
+
+  ticketUrl       String?
+  pixQrCode       String?
+  pixQrCodeBase64 String?
+  expiresAt       DateTime?
+
+  approvedAt  DateTime?
+  cancelledAt DateTime?
+  refundedAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   orderId String @db.ObjectId
-  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
-
-  @@index([orderId])
-  @@index([status])
-  @@index([gatewayPreferenceId])
-  @@index([externalReference])
-  @@map("payments")
+  order   Order  @relation(fields: [orderId], references: [id])
 }
 
 model Coupon {
