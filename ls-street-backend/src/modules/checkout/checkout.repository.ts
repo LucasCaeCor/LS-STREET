@@ -106,6 +106,76 @@ export class CheckoutRepository {
     });
   }
 
+
+  async findCouponByCode(
+  transaction: TransactionClient,
+  code: string,
+) {
+  return transaction.coupon.findUnique({
+    where: {
+      code,
+    },
+
+    select: {
+      id: true,
+      code: true,
+      description: true,
+
+      type: true,
+      value: true,
+
+      minimumOrderInCents: true,
+      maximumDiscountInCents: true,
+
+      usageLimit: true,
+      usageCount: true,
+      usageLimitPerUser: true,
+
+      startsAt: true,
+      expiresAt: true,
+
+      active: true,
+    },
+  });
+}
+
+async countCouponUsageByUser(
+  transaction: TransactionClient,
+  couponId: string,
+  userId: string,
+) {
+  return transaction.order.count({
+    where: {
+      couponId,
+      userId,
+
+      status: {
+        notIn: [
+          "CANCELLED",
+          "REFUNDED",
+        ],
+      },
+    },
+  });
+}
+
+async incrementCouponUsage(
+  transaction: TransactionClient,
+  couponId: string,
+) {
+  return transaction.coupon.update({
+    where: {
+      id: couponId,
+    },
+
+    data: {
+      usageCount: {
+        increment: 1,
+      },
+    },
+  });
+}
+
   async generateOrderNumber(
     transaction: TransactionClient,
   ) {

@@ -36,7 +36,10 @@ import {
 import {
   adminPaymentRoutes,
 } from "./modules/admin-payments/admin-payment.routes";
-
+import {
+  adminCouponRoutes,
+  couponRoutes,
+} from "./modules/coupons/coupon.routes";
 
 export async function buildApp() {
   const app = Fastify({
@@ -125,6 +128,19 @@ await app.register(
   {
     prefix:
       "/admin/payments",
+  },
+);
+await app.register(
+  couponRoutes,
+  {
+    prefix: "/coupons",
+  },
+);
+
+await app.register(
+  adminCouponRoutes,
+  {
+    prefix: "/admin/coupons",
   },
 );
 

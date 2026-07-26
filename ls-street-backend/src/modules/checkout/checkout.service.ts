@@ -44,6 +44,74 @@ function createVariantName(
     ? attributes.join(" / ")
     : null;
 }
+interface CheckoutCoupon {
+  id: string;
+  code: string;
+
+  type:
+    | "PERCENTAGE"
+    | "FIXED"
+    | "FREE_SHIPPING";
+
+  value: number;
+
+  minimumOrderInCents: number;
+  maximumDiscountInCents:
+    | number
+    | null;
+
+  usageLimit: number | null;
+  usageCount: number;
+
+  usageLimitPerUser:
+    | number
+    | null;
+
+  startsAt: Date | null;
+  expiresAt: Date | null;
+
+  active: boolean;
+}
+
+function calculateCouponDiscount(
+  coupon: CheckoutCoupon,
+  subtotalInCents: number,
+) {
+  if (
+    coupon.type === "PERCENTAGE"
+  ) {
+    let discountInCents =
+      Math.floor(
+        subtotalInCents *
+          coupon.value /
+          100,
+      );
+
+    if (
+      coupon
+        .maximumDiscountInCents !==
+      null
+    ) {
+      discountInCents =
+        Math.min(
+          discountInCents,
+          coupon
+            .maximumDiscountInCents,
+        );
+    }
+
+    return discountInCents;
+  }
+
+  if (coupon.type === "FIXED") {
+    return Math.min(
+      coupon.value,
+      subtotalInCents,
+    );
+  }
+
+  return 0;
+}
 
 export class CheckoutService {
   constructor(
@@ -156,13 +224,144 @@ export class CheckoutService {
             variant.priceInCents * item.quantity;
         }
 
-        const discountInCents = 0;
-        const shippingInCents = 0;
+        let coupon:
+  CheckoutCoupon | null = null;
 
-        const totalInCents =
-          subtotalInCents -
-          discountInCents +
-          shippingInCents;
+let discountInCents = 0;
+let shippingInCents = 0;
+
+if (input.couponCode) {
+  coupon =
+    await this.repository
+      .findCouponByCode(
+        transaction,
+        input.couponCode,
+      );
+
+  if (!coupon) {
+    throw new CheckoutServiceError(
+      "Cupom não encontrado.",
+      {
+        statusCode: 404,
+        code: "COUPON_NOT_FOUND",
+      },
+    );
+  }
+
+  if (!coupon.active) {
+    throw new CheckoutServiceError(
+      "Este cupom está inativo.",
+      {
+        statusCode: 422,
+        code: "COUPON_INACTIVE",
+      },
+    );
+  }
+
+  const now = new Date();
+
+  if (
+    coupon.startsAt &&
+    coupon.startsAt > now
+  ) {
+    throw new CheckoutServiceError(
+      "Este cupom ainda não está disponível.",
+      {
+        statusCode: 422,
+        code: "COUPON_NOT_STARTED",
+      },
+    );
+  }
+
+  if (
+    coupon.expiresAt &&
+    coupon.expiresAt < now
+  ) {
+    throw new CheckoutServiceError(
+      "Este cupom expirou.",
+      {
+        statusCode: 422,
+        code: "COUPON_EXPIRED",
+      },
+    );
+  }
+
+  if (
+    coupon.usageLimit !== null &&
+    coupon.usageCount >=
+      coupon.usageLimit
+  ) {
+    throw new CheckoutServiceError(
+      "O limite de uso deste cupom foi atingido.",
+      {
+        statusCode: 422,
+        code:
+          "COUPON_USAGE_LIMIT_REACHED",
+      },
+    );
+  }
+
+  if (
+    subtotalInCents <
+    coupon.minimumOrderInCents
+  ) {
+    throw new CheckoutServiceError(
+      "O valor mínimo do pedido para este cupom não foi atingido.",
+      {
+        statusCode: 422,
+        code:
+          "COUPON_MINIMUM_ORDER_NOT_REACHED",
+      },
+    );
+  }
+
+  if (
+    coupon.usageLimitPerUser !==
+    null
+  ) {
+    const userUsage =
+      await this.repository
+        .countCouponUsageByUser(
+          transaction,
+          coupon.id,
+          userId,
+        );
+
+    if (
+      userUsage >=
+      coupon.usageLimitPerUser
+    ) {
+      throw new CheckoutServiceError(
+        "Você já atingiu o limite de uso deste cupom.",
+        {
+          statusCode: 422,
+          code:
+            "COUPON_USER_LIMIT_REACHED",
+        },
+      );
+    }
+  }
+
+  discountInCents =
+    calculateCouponDiscount(
+      coupon,
+      subtotalInCents,
+    );
+
+  if (
+    coupon.type ===
+    "FREE_SHIPPING"
+  ) {
+    shippingInCents = 0;
+  }
+}
+
+const totalInCents = Math.max(
+  0,
+  subtotalInCents -
+    discountInCents +
+    shippingInCents,
+);
 
         const orderNumber =
           await this.repository.generateOrderNumber(
@@ -207,6 +406,9 @@ export class CheckoutService {
               shippingInCents,
               totalInCents,
 
+              couponCode:
+                coupon?.code ?? null,
+
               customerName: user.name,
               customerEmail: user.email,
               customerPhone:
@@ -236,6 +438,15 @@ export class CheckoutService {
                   id: address.id,
                 },
               },
+            ...(coupon
+                ? {
+                    coupon: {
+                        connect: {
+                        id: coupon.id,
+                        },
+                    },
+                    }
+                : {}),
 
               items: {
                 create: cart.items.map(
@@ -287,6 +498,13 @@ export class CheckoutService {
               },
             },
           );
+          if (coupon) {
+            await this.repository
+                .incrementCouponUsage(
+                transaction,
+                coupon.id,
+                );
+            }
 
         await this.repository.clearCart(
           transaction,
