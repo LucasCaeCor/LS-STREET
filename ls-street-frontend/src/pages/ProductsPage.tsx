@@ -20,7 +20,9 @@ import {
 } from "../components/ProductVariantsModal";
 
 
-
+import {
+  ProductImagesModal,
+} from "../components/ProductImagesModal";
 import {
   useCallback,
   useEffect,
@@ -215,6 +217,13 @@ export function ProductsPage() {
   useState<Product | null>(
     null,
   );
+
+  const [
+  imagesProduct,
+  setImagesProduct,
+] = useState<Product | null>(
+  null,
+);
 
   const [
     categories,
@@ -1388,6 +1397,18 @@ export function ProductsPage() {
                         <Package size={16} />
                         Variações
                         </button>
+
+                        <button
+                            type="button"
+                            onClick={() =>
+                                setImagesProduct(
+                                product,
+                                )
+                            }
+                            >
+                            <ImageIcon size={16} />
+                            Imagens
+                            </button>
                     </footer>
                   </article>
                 );
@@ -1830,6 +1851,21 @@ export function ProductsPage() {
             loadProducts
         }
         />
+
+        <ProductImagesModal
+            key={
+                imagesProduct?.publicId ??
+                "no-image-product"
+            }
+            product={imagesProduct}
+            open={Boolean(
+                imagesProduct,
+            )}
+            onClose={() =>
+                setImagesProduct(null)
+            }
+            onChanged={loadProducts}
+            />
     </div>
     
   );
