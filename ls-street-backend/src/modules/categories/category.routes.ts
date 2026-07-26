@@ -192,8 +192,13 @@ const listCategoriesQueryJsonSchema = {
     },
 
     isActive: {
-      type: "boolean",
-    },
+  type: "string",
+
+  enum: [
+    "true",
+    "false",
+  ],
+},
   },
 } as const;
 

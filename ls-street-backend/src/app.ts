@@ -77,9 +77,27 @@ export async function buildApp() {
     registerErrorSchemas(app);
   
   await app.register(cors, {
-    origin: true,
-    credentials: true,
-  });
+  origin: "http://localhost:5173",
+
+  credentials: true,
+
+  methods: [
+    "GET",
+    "HEAD",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS",
+  ],
+
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "x-signature",
+    "x-request-id",
+  ],
+});
 
     await app.register(multipart, {
     limits: {
