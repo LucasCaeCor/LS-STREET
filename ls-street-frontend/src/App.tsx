@@ -31,6 +31,15 @@ import {
 import {
   CategoriesPage,
 } from "./pages/CategoriesPage";
+import {
+  ProductsPage,
+} from "./pages/ProductsPage";
+
+
+
+
+
+
 
 function PlaceholderPage({
   title,
@@ -85,13 +94,9 @@ export default function App() {
 />
 
           <Route
-            path="produtos"
-            element={
-              <PlaceholderPage
-                title="Produtos"
-              />
-            }
-          />
+  path="produtos"
+  element={<ProductsPage />}
+/>
 
           <Route
   path="categorias"
