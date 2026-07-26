@@ -33,7 +33,9 @@ import {
 import {
   inventoryRoutes,
 } from "./modules/inventory/inventory.routes";
-
+import {
+  adminPaymentRoutes,
+} from "./modules/admin-payments/admin-payment.routes";
 
 
 export async function buildApp() {
@@ -116,6 +118,13 @@ await app.register(
   {
     prefix:
       "/admin/inventory",
+  },
+);
+await app.register(
+  adminPaymentRoutes,
+  {
+    prefix:
+      "/admin/payments",
   },
 );
 
