@@ -58,21 +58,27 @@ interface RequestOptions
   retryOnUnauthorized?: boolean;
 }
 
-async function refreshSession(): Promise<
-  string | null
-> {
-  const response = await fetch(
-    `${API_URL}/auth/refresh`,
-    {
-      method: "POST",
-      credentials: "include",
+let refreshPromise:
+  Promise<string | null> | null =
+  null;
 
-      headers: {
-        "Content-Type":
-          "application/json",
-      },
+async function executeRefreshSession():
+  Promise<string | null> {
+  const response = await fetch(
+  `${API_URL}/auth/refresh`,
+  {
+    method: "POST",
+
+    headers: {
+      "Content-Type":
+        "application/json",
     },
-  );
+
+    body: JSON.stringify({}),
+
+    credentials: "include",
+  },
+);
 
   if (!response.ok) {
     removeAccessToken();
@@ -80,7 +86,8 @@ async function refreshSession(): Promise<
     return null;
   }
 
-  const result = await response.json();
+  const result =
+    await response.json();
 
   const token =
     result?.data?.accessToken;
@@ -96,6 +103,21 @@ async function refreshSession(): Promise<
   setAccessToken(token);
 
   return token;
+}
+
+async function refreshSession():
+  Promise<string | null> {
+  if (refreshPromise) {
+    return refreshPromise;
+  }
+
+  refreshPromise =
+    executeRefreshSession()
+      .finally(() => {
+        refreshPromise = null;
+      });
+
+  return refreshPromise;
 }
 
 export async function apiRequest<T>(
