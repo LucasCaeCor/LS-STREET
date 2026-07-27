@@ -51,6 +51,13 @@ import auditPlugin from "./plugins/audit";
 import {
   adminAuditRoutes,
 } from "./modules/audit/admin-audit.routes";
+import {
+  adminCustomerRoutes,
+} from "./modules/admin-customers/admin-customer.routes";
+
+
+
+
 
 export async function buildApp() {
   const app = Fastify({
@@ -197,6 +204,9 @@ await app.register(
     prefix:
       "/admin/audit",
   },
+);
+await app.register(
+  errorHandlerPlugin,
 );
 
 
