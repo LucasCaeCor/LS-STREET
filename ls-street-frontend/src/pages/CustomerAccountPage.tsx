@@ -187,22 +187,24 @@ export function CustomerAccountPage() {
 
           <div>
             <article>
-              <ShoppingBag
-                size={24}
-              />
+  <ShoppingBag
+    size={24}
+  />
 
-              <h3>Meus pedidos</h3>
+  <h3>Meus pedidos</h3>
 
-              <p>
-                Acompanhe pagamentos,
-                preparação e entrega.
-              </p>
+  <p>
+    Acompanhe pagamentos,
+    preparação e entrega.
+  </p>
 
-              <span>
-                Disponível na próxima
-                etapa
-              </span>
-            </article>
+  <Link
+    to="/minha-conta/pedidos"
+    className="customer-account-shortcut-link"
+  >
+    Ver meus pedidos
+  </Link>
+</article>
 
             <article>
               <Heart size={24} />

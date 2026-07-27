@@ -1214,7 +1214,16 @@ export function StoreCheckoutPage() {
                 </small>
               </div>
             </div>
+            <Link
+            to={`/minha-conta/pedidos/${createdOrder.number}`}
+            className="store-checkout-view-order"
+            >
+            Acompanhar pedido
 
+            <PackageCheck
+                size={18}
+            />
+            </Link>
             <Link
               to="/"
               className="store-checkout-return-store"

@@ -92,7 +92,13 @@ import {
 import {
   StoreCheckoutPage,
 } from "./pages/StoreCheckoutPage";
+import {
+  CustomerOrdersPage,
+} from "./pages/CustomerOrdersPage";
 
+import {
+  CustomerOrderDetailsPage,
+} from "./pages/CustomerOrderDetailsPage";
 
 
 
@@ -239,7 +245,19 @@ export default function App() {
             }
           />
         </Route>
+        <Route
+          path="/minha-conta/pedidos"
+          element={
+            <CustomerOrdersPage />
+          }
+        />
 
+        <Route
+          path="/minha-conta/pedidos/:number"
+          element={
+            <CustomerOrderDetailsPage />
+          }
+        />
 
         <Route
           path="/carrinho"
