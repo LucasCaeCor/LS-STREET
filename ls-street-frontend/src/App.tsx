@@ -46,7 +46,9 @@ import {
 import {
   BannersPage,
 } from "./pages/BannersPage";
-
+import {
+  AuditPage,
+} from "./pages/AuditPage";
 
 
 function PlaceholderPage({
@@ -150,13 +152,9 @@ export default function App() {
           />
 
           <Route
-            path="auditoria"
-            element={
-              <PlaceholderPage
-                title="Auditoria"
-              />
-            }
-          />
+  path="auditoria"
+  element={<AuditPage />}
+/>
         </Route>
       </Route>
 
