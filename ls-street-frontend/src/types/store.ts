@@ -134,3 +134,12 @@ export interface PublicProductsResponse {
 
   pagination: Pagination;
 }
+
+export interface PublicProductResponse {
+  success: boolean;
+  message: string;
+
+  data: {
+    product: StoreProduct;
+  };
+}

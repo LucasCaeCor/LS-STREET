@@ -83,6 +83,12 @@ import {
   StoreHomePage,
 } from "./pages/StoreHomePage";
 
+import {
+  StoreProductPage,
+} from "./pages/StoreProductPage";
+
+
+
 function PlaceholderPage({
   title,
 }: {
@@ -193,6 +199,12 @@ export default function App() {
           element={<StoreHomePage />}
         />
 
+        <Route
+          path="/produto/:slug"
+          element={
+            <StoreProductPage />
+          }
+        />
         <Route
           path="/conta/entrar"
           element={

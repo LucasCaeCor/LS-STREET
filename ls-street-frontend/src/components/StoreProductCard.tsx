@@ -4,6 +4,12 @@ import {
   Sparkles,
 } from "lucide-react";
 
+
+import {
+  Link,
+} from "react-router";
+
+
 import type {
   StoreProduct,
 } from "../types/store";
@@ -75,7 +81,11 @@ export function StoreProductCard({
         .priceInCents;
 
   return (
-    <article className="store-product-card">
+    <Link
+  to={`/produto/${product.slug}`}
+  className="store-product-card"
+  aria-label={`Ver ${product.name}`}
+>
       <div className="store-product-image">
         {primaryImage ? (
           <img
@@ -195,6 +205,6 @@ export function StoreProductCard({
           </span>
         </footer>
       </div>
-    </article>
+    </Link>
   );
 }
