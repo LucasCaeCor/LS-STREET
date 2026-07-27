@@ -106,74 +106,95 @@ export class CheckoutRepository {
     });
   }
 
+  
 
-  async findCouponByCode(
-  transaction: TransactionClient,
+
+ async findCouponByCode(
+  transaction:
+    TransactionClient,
+
   code: string,
 ) {
-  return transaction.coupon.findUnique({
-    where: {
-      code,
-    },
+  return transaction.coupon
+    .findUnique({
+      where: {
+        code,
+      },
 
-    select: {
-      id: true,
-      code: true,
-      description: true,
+      select: {
+        id: true,
+        code: true,
+        description: true,
 
-      type: true,
-      value: true,
+        type: true,
+        value: true,
 
-      minimumOrderInCents: true,
-      maximumDiscountInCents: true,
+        minimumOrderInCents:
+          true,
 
-      usageLimit: true,
-      usageCount: true,
-      usageLimitPerUser: true,
+        maximumDiscountInCents:
+          true,
 
-      startsAt: true,
-      expiresAt: true,
+        usageLimit: true,
+        usageCount: true,
 
-      active: true,
-    },
-  });
+        usageLimitPerUser:
+          true,
+
+        startsAt: true,
+        expiresAt: true,
+
+        active: true,
+      },
+    });
 }
 
 async countCouponUsageByUser(
-  transaction: TransactionClient,
+  transaction:
+    TransactionClient,
+
   couponId: string,
   userId: string,
 ) {
-  return transaction.order.count({
-    where: {
-      couponId,
-      userId,
+  return transaction.order
+    .count({
+      where: {
+        couponId,
+        userId,
 
-      status: {
-        notIn: [
-          "CANCELLED",
-          "REFUNDED",
-        ],
+        status: {
+          notIn: [
+            "CANCELLED",
+            "REFUNDED",
+          ],
+        },
       },
-    },
-  });
+    });
 }
 
 async incrementCouponUsage(
-  transaction: TransactionClient,
+  transaction:
+    TransactionClient,
+
   couponId: string,
 ) {
-  return transaction.coupon.update({
-    where: {
-      id: couponId,
-    },
-
-    data: {
-      usageCount: {
-        increment: 1,
+  return transaction.coupon
+    .update({
+      where: {
+        id: couponId,
       },
-    },
-  });
+
+      data: {
+        usageCount: {
+          increment: 1,
+        },
+      },
+
+      select: {
+        id: true,
+        usageCount: true,
+      },
+    });
 }
 
   async generateOrderNumber(
@@ -205,27 +226,73 @@ async incrementCouponUsage(
   }
 
   async decrementVariantStock(
-    transaction: TransactionClient,
-    variantId: string,
-    quantity: number,
+  transaction:
+    TransactionClient,
+
+  variantId: string,
+  quantity: number,
+) {
+  const variant =
+    await transaction
+      .productVariant
+      .findUnique({
+        where: {
+          id: variantId,
+        },
+
+        select: {
+          id: true,
+          stock: true,
+          reservedStock: true,
+          isActive: true,
+        },
+      });
+
+  if (
+    !variant ||
+    !variant.isActive
   ) {
-    return transaction.productVariant.updateMany({
+    return {
+      count: 0,
+    };
+  }
+
+  const availableStock =
+    Math.max(
+      variant.stock -
+        variant.reservedStock,
+
+      0,
+    );
+
+  if (
+    availableStock <
+    quantity
+  ) {
+    return {
+      count: 0,
+    };
+  }
+
+  await transaction
+    .productVariant
+    .update({
       where: {
         id: variantId,
-        isActive: true,
-
-        stock: {
-          gte: quantity,
-        },
       },
 
       data: {
         stock: {
-          decrement: quantity,
+          decrement:
+            quantity,
         },
       },
     });
-  }
+
+  return {
+    count: 1,
+  };
+}
 
   async createOrder(
     transaction: TransactionClient,

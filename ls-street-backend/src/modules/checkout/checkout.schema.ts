@@ -1,22 +1,39 @@
-import { z } from "zod";
+import {
+  z,
+} from "zod";
 
-export const createCheckoutSchema = z.object({
-  addressId: z
-    .string()
-    .trim()
-    .min(1, "Informe o endereço de entrega."),
+const couponCodeSchema = z
+  .string()
+  .trim()
+  .min(
+    3,
+    "O cupom deve possuir pelo menos 3 caracteres.",
+  )
+  .max(30)
+  .regex(
+    /^[a-zA-Z0-9_-]+$/,
+    "O cupom pode conter apenas letras, números, hífen e underline.",
+  )
+  .transform(
+    (value) =>
+      value.toUpperCase(),
+  );
 
-  couponCode: z
-    .string()
-    .trim()
-    .min(3)
-    .max(30)
-    .transform((code) =>
-      code.toUpperCase(),
-    )
-    .optional(),
-});
+export const createCheckoutSchema =
+  z.object({
+    addressId: z
+      .string()
+      .trim()
+      .min(
+        1,
+        "Informe o endereço de entrega.",
+      ),
 
-export type CreateCheckoutInput = z.infer<
-  typeof createCheckoutSchema
->;
+    couponCode:
+      couponCodeSchema.optional(),
+  });
+
+export type CreateCheckoutInput =
+  z.infer<
+    typeof createCheckoutSchema
+  >;
