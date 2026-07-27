@@ -1,5 +1,5 @@
 import {
-  Navigate,
+  
   Route,
   Routes,
 } from "react-router";
@@ -52,7 +52,13 @@ import {
 import {
   CustomersPage,
 } from "./pages/CustomersPage";
+import {
+  StoreLayout,
+} from "./components/StoreLayout";
 
+import {
+  StoreHomePage,
+} from "./pages/StoreHomePage";
 
 
 
@@ -160,14 +166,15 @@ export default function App() {
       </Route>
 
       <Route
-        path="/"
-        element={
-          <Navigate
-            to="/admin"
-            replace
-          />
-        }
-      />
+  element={<StoreLayout />}
+>
+  <Route
+    path="/"
+    element={
+      <StoreHomePage />
+    }
+  />
+</Route>
 
       <Route
         path="*"
