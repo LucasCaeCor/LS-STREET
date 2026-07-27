@@ -206,6 +206,12 @@ await app.register(
   },
 );
 await app.register(
+  adminCustomerRoutes,
+  {
+    prefix: "/admin/customers",
+  },
+);
+await app.register(
   errorHandlerPlugin,
 );
 
