@@ -43,7 +43,9 @@ import {
 import {
   CouponsPage,
 } from "./pages/CouponsPage";
-
+import {
+  BannersPage,
+} from "./pages/BannersPage";
 
 
 
@@ -125,13 +127,9 @@ export default function App() {
 />
 
           <Route
-            path="banners"
-            element={
-              <PlaceholderPage
-                title="Banners"
-              />
-            }
-          />
+  path="banners"
+  element={<BannersPage />}
+/>
 
           <Route
             path="clientes"
