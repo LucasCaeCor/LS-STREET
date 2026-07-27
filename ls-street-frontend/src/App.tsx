@@ -49,6 +49,11 @@ import {
 import {
   AuditPage,
 } from "./pages/AuditPage";
+import {
+  CustomersPage,
+} from "./pages/CustomersPage";
+
+
 
 
 function PlaceholderPage({
@@ -134,13 +139,9 @@ export default function App() {
 />
 
           <Route
-            path="clientes"
-            element={
-              <PlaceholderPage
-                title="Clientes"
-              />
-            }
-          />
+  path="clientes"
+  element={<CustomersPage />}
+/>
 
           <Route
             path="favoritos"
