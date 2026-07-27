@@ -1,83 +1,73 @@
-// import type {
-//   Pagination,
-// } from "./orders";
+import type {
+  Pagination,
+} from "./orders";
 
-// export interface FavoriteProductImage {
-//   publicId: string;
+export interface FavoriteImage {
+  publicId: string;
+  url: string;
+  altText: string | null;
+  isPrimary: boolean;
+}
 
-//   url: string;
-//   altText: string | null;
+export interface FavoriteVariant {
+  publicId: string;
+  sku: string;
 
-//   isPrimary: boolean;
-// }
+  color: string | null;
+  size: string | null;
 
-// export interface FavoriteProductVariant {
-//   publicId: string;
+  priceInCents: number;
 
-//   sku: string;
+  compareAtPriceInCents:
+    | number
+    | null;
 
-//   color: string | null;
-//   size: string | null;
+  stock: number;
+  reservedStock: number;
+  availableStock: number;
+}
 
-//   priceInCents: number;
+export interface FavoriteProduct {
+  publicId: string;
 
-//   compareAtPriceInCents:
-//     | number
-//     | null;
+  name: string;
+  slug: string;
 
-//   stock: number;
-//   reservedStock: number;
+  shortDescription:
+    | string
+    | null;
 
-//   availableStock: number;
-// }
+  brand: string | null;
+  isFeatured: boolean;
 
-// export interface FavoriteProduct {
-//   publicId: string;
+  image: FavoriteImage | null;
 
-//   name: string;
-//   slug: string;
+  category: {
+    publicId: string;
+    name: string;
+    slug: string;
+  };
 
-//   shortDescription:
-//     | string
-//     | null;
+  minimumPriceInCents:
+    | number
+    | null;
 
-//   brand: string | null;
+  available: boolean;
 
-//   isFeatured: boolean;
+  variants: FavoriteVariant[];
+}
 
-//   image:
-//     | FavoriteProductImage
-//     | null;
+export interface FavoriteItem {
+  id: string;
+  createdAt: string;
 
-//   category: {
-//     publicId: string;
+  product: FavoriteProduct;
+}
 
-//     name: string;
-//     slug: string;
-//   };
+export interface FavoritesResponse {
+  success: boolean;
+  message: string;
 
-//   minimumPriceInCents:
-//     | number
-//     | null;
-
-//   available: boolean;
-
-//   variants:
-//     FavoriteProductVariant[];
-// }
-
-// export interface FavoriteItem {
-//   id: string;
-//   createdAt: string;
-
-//   product: FavoriteProduct;
-// }
-
-// export interface FavoritesResponse {
-//   success: boolean;
-//   message: string;
-
-//   data: FavoriteItem[];
-
-//   pagination: Pagination;
-// }
+  data: FavoriteItem[];
+  pagination: Pagination;
+}

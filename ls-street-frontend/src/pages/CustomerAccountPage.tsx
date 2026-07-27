@@ -8,7 +8,9 @@ import {
   ShoppingBag,
   UserRound,
 } from "lucide-react";
-
+import {
+  useFavorites,
+} from "../contexts/FavoritesContext";
 import {
   Link,
   useNavigate,
@@ -43,6 +45,10 @@ export function CustomerAccountPage() {
     user,
     logout,
   } = useAuth();
+
+  const {
+  totalFavorites,
+} = useFavorites();
 
   if (!user) {
     return null;
@@ -216,10 +222,14 @@ export function CustomerAccountPage() {
                 mais combinam com você.
               </p>
 
-              <span>
-                Disponível na próxima
-                etapa
-              </span>
+              <Link
+  to="/minha-conta/favoritos"
+  className="customer-account-shortcut-link"
+>
+  Ver favoritos
+  {totalFavorites > 0 &&
+    ` (${totalFavorites})`}
+</Link>
             </article>
           </div>
         </section>

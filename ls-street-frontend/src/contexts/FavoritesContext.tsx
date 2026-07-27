@@ -9,44 +9,41 @@ import {
 } from "react";
 
 import {
-  useNavigate,
-} from "react-router";
-
-import {
-  useAuth,
-} from "./AuthContext";
-
-import {
   ApiError,
   apiRequest,
 } from "../lib/api";
 
 import type {
+  FavoriteItem,
   FavoritesResponse,
 } from "../types/favorites";
 
+import {
+  useAuth,
+} from "./AuthContext";
+
 interface FavoritesContextValue {
-  favoriteCount: number;
+  favorites: FavoriteItem[];
 
   loading: boolean;
   error: string;
+
+  totalFavorites: number;
 
   isFavorite(
     productPublicId: string,
   ): boolean;
 
-  isPending(
+  isToggling(
     productPublicId: string,
   ): boolean;
 
+  refreshFavorites():
+    Promise<void>;
+
   toggleFavorite(
     productPublicId: string,
-    redirectPath?: string,
-  ): Promise<boolean | null>;
-
-  refreshFavorites(): Promise<void>;
-
-  clearError(): void;
+  ): Promise<boolean>;
 }
 
 const FavoritesContext =
@@ -61,9 +58,6 @@ interface FavoritesProviderProps {
 export function FavoritesProvider({
   children,
 }: FavoritesProviderProps) {
-  const navigate =
-    useNavigate();
-
   const {
     user,
     loading: authLoading,
@@ -71,37 +65,43 @@ export function FavoritesProvider({
   } = useAuth();
 
   const [
-    favoriteProductIds,
-    setFavoriteProductIds,
-  ] = useState<Set<string>>(
-    new Set(),
-  );
-
-  const [
-    pendingProductIds,
-    setPendingProductIds,
-  ] = useState<Set<string>>(
-    new Set(),
-  );
-
-  const [
-    favoriteCount,
-    setFavoriteCount,
-  ] = useState(0);
+    favorites,
+    setFavorites,
+  ] = useState<FavoriteItem[]>([]);
 
   const [
     loading,
     setLoading,
-  ] = useState(true);
+  ] = useState(false);
 
   const [
     error,
     setError,
   ] = useState("");
 
+  const [
+    togglingIds,
+    setTogglingIds,
+  ] = useState<Set<string>>(
+    new Set(),
+  );
+
   const isCustomer =
     authenticated &&
     user?.role === "CUSTOMER";
+
+  const favoriteIds =
+    useMemo(
+      () =>
+        new Set(
+          favorites.map(
+            (favorite) =>
+              favorite.product
+                .publicId,
+          ),
+        ),
+      [favorites],
+    );
 
   const refreshFavorites =
     useCallback(async () => {
@@ -110,15 +110,7 @@ export function FavoritesProvider({
       }
 
       if (!isCustomer) {
-        setFavoriteProductIds(
-          new Set(),
-        );
-
-        setPendingProductIds(
-          new Set(),
-        );
-
-        setFavoriteCount(0);
+        setFavorites([]);
         setError("");
         setLoading(false);
 
@@ -129,62 +121,24 @@ export function FavoritesProvider({
       setError("");
 
       try {
-        const firstResponse =
+        const response =
           await apiRequest<
             FavoritesResponse
           >(
             "/favorites?page=1&limit=100&sortOrder=desc",
           );
 
-        const allFavorites = [
-          ...firstResponse.data,
-        ];
-
-        for (
-          let page = 2;
-          page <=
-          firstResponse.pagination
-            .totalPages;
-          page += 1
-        ) {
-          const response =
-            await apiRequest<
-              FavoritesResponse
-            >(
-              `/favorites?page=${page}&limit=100&sortOrder=desc`,
-            );
-
-          allFavorites.push(
-            ...response.data,
-          );
-        }
-
-        setFavoriteProductIds(
-          new Set(
-            allFavorites.map(
-              (favorite) =>
-                favorite.product
-                  .publicId,
-            ),
-          ),
-        );
-
-        setFavoriteCount(
-          firstResponse.pagination
-            .totalItems,
+        setFavorites(
+          response.data,
         );
       } catch (caughtError) {
-        setFavoriteProductIds(
-          new Set(),
-        );
-
-        setFavoriteCount(0);
+        setFavorites([]);
 
         setError(
           caughtError instanceof
             ApiError
             ? caughtError.message
-            : "Não foi possível carregar seus favoritos.",
+            : "Não foi possível carregar os favoritos.",
         );
       } finally {
         setLoading(false);
@@ -212,68 +166,42 @@ export function FavoritesProvider({
       (
         productPublicId: string,
       ) =>
-        favoriteProductIds.has(
+        favoriteIds.has(
           productPublicId,
         ),
-      [favoriteProductIds],
+      [favoriteIds],
     );
 
-  const isPending =
+  const isToggling =
     useCallback(
       (
         productPublicId: string,
       ) =>
-        pendingProductIds.has(
+        togglingIds.has(
           productPublicId,
         ),
-      [pendingProductIds],
+      [togglingIds],
     );
 
   const toggleFavorite =
     useCallback(
       async (
         productPublicId: string,
-        redirectPath = "/",
-      ): Promise<
-        boolean | null
-      > => {
-        if (authLoading) {
-          return null;
-        }
-
-        if (!authenticated) {
-          navigate(
-            `/conta/entrar?redirect=${encodeURIComponent(
-              redirectPath,
-            )}`,
+      ) => {
+        if (!isCustomer) {
+          throw new ApiError(
+            "Entre com uma conta de cliente para usar os favoritos.",
+            401,
+            "CUSTOMER_AUTH_REQUIRED",
           );
-
-          return null;
-        }
-
-        if (
-          user?.role !==
-          "CUSTOMER"
-        ) {
-          navigate("/admin");
-
-          return null;
-        }
-
-        if (
-          pendingProductIds.has(
-            productPublicId,
-          )
-        ) {
-          return null;
         }
 
         const currentlyFavorite =
-          favoriteProductIds.has(
+          favoriteIds.has(
             productPublicId,
           );
 
-        setPendingProductIds(
+        setTogglingIds(
           (current) => {
             const next =
               new Set(current);
@@ -291,73 +219,51 @@ export function FavoritesProvider({
         try {
           if (currentlyFavorite) {
             await apiRequest<void>(
-              `/favorites/${productPublicId}`,
+              `/favorites/${encodeURIComponent(
+                productPublicId,
+              )}`,
               {
                 method: "DELETE",
               },
             );
 
-            setFavoriteProductIds(
-              (current) => {
-                const next =
-                  new Set(current);
-
-                next.delete(
-                  productPublicId,
-                );
-
-                return next;
-              },
-            );
-
-            setFavoriteCount(
+            setFavorites(
               (current) =>
-                Math.max(
-                  0,
-                  current - 1,
+                current.filter(
+                  (favorite) =>
+                    favorite.product
+                      .publicId !==
+                    productPublicId,
                 ),
             );
 
             return false;
           }
 
-          await apiRequest<unknown>(
-            `/favorites/${productPublicId}`,
+          await apiRequest(
+            `/favorites/${encodeURIComponent(
+              productPublicId,
+            )}`,
             {
               method: "POST",
             },
           );
 
-          setFavoriteProductIds(
-            (current) => {
-              const next =
-                new Set(current);
-
-              next.add(
-                productPublicId,
-              );
-
-              return next;
-            },
-          );
-
-          setFavoriteCount(
-            (current) =>
-              current + 1,
-          );
+          await refreshFavorites();
 
           return true;
         } catch (caughtError) {
-          setError(
+          const message =
             caughtError instanceof
               ApiError
               ? caughtError.message
-              : "Não foi possível alterar o favorito.",
-          );
+              : "Não foi possível alterar os favoritos.";
 
-          return null;
+          setError(message);
+
+          throw caughtError;
         } finally {
-          setPendingProductIds(
+          setTogglingIds(
             (current) => {
               const next =
                 new Set(current);
@@ -372,45 +278,36 @@ export function FavoritesProvider({
         }
       },
       [
-        authLoading,
-        authenticated,
-        user,
-        navigate,
-        pendingProductIds,
-        favoriteProductIds,
+        favoriteIds,
+        isCustomer,
+        refreshFavorites,
       ],
     );
-
-  const clearError =
-    useCallback(() => {
-      setError("");
-    }, []);
 
   const value =
     useMemo(
       () => ({
-        favoriteCount,
-
+        favorites,
         loading,
         error,
 
+        totalFavorites:
+          favorites.length,
+
         isFavorite,
-        isPending,
+        isToggling,
 
-        toggleFavorite,
         refreshFavorites,
-
-        clearError,
+        toggleFavorite,
       }),
       [
-        favoriteCount,
+        favorites,
         loading,
         error,
         isFavorite,
-        isPending,
-        toggleFavorite,
+        isToggling,
         refreshFavorites,
-        clearError,
+        toggleFavorite,
       ],
     );
 

@@ -1,13 +1,16 @@
 import {
   Menu,
   Search,
+  Heart,
   ShieldCheck,
   ShoppingBag,
   UserRound,
   LoaderCircle,
   X,
 } from "lucide-react";
-
+import {
+  useFavorites,
+} from "../contexts/FavoritesContext";
 import {
   useAuth,
 } from "../contexts/AuthContext";
@@ -47,6 +50,12 @@ export function StoreLayout() {
   loading: loadingCart,
   openCart,
 } = useCart();
+
+
+const {
+  totalFavorites,
+  loading: loadingFavorites,
+} = useFavorites();
 
   const [
     mobileMenuOpen,
@@ -266,6 +275,51 @@ export function StoreLayout() {
                     </Link>
                 )}
             </div>
+
+            <Link
+  to={
+    authenticated &&
+    user?.role === "CUSTOMER"
+      ? "/minha-conta/favoritos"
+      : authenticated &&
+          user?.role === "ADMIN"
+        ? "/admin"
+        : `/conta/entrar?redirect=${encodeURIComponent(
+            "/minha-conta/favoritos",
+          )}`
+  }
+  className="store-favorites-header-button"
+  aria-label="Abrir favoritos"
+  onClick={closeMenu}
+>
+  {loadingFavorites &&
+  authenticated &&
+  user?.role === "CUSTOMER" ? (
+    <LoaderCircle
+      size={19}
+      className="icon-spinning"
+    />
+  ) : (
+    <Heart
+      size={19}
+      fill={
+        totalFavorites > 0
+          ? "currentColor"
+          : "none"
+      }
+    />
+  )}
+
+  {authenticated &&
+    user?.role === "CUSTOMER" &&
+    totalFavorites > 0 && (
+      <span>
+        {totalFavorites > 99
+          ? "99+"
+          : totalFavorites}
+      </span>
+    )}
+</Link>
                     <button
                     type="button"
                     className="store-cart-header-button"

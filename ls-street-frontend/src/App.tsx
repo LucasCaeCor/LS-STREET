@@ -99,7 +99,9 @@ import {
 import {
   CustomerOrderDetailsPage,
 } from "./pages/CustomerOrderDetailsPage";
-
+import {
+  CustomerFavoritesPage,
+} from "./pages/CustomerFavoritesPage";
 
 
 function PlaceholderPage({
@@ -233,31 +235,39 @@ export default function App() {
         />
 
         {/* Área protegida do cliente */}
-        <Route
-          element={
-            <CustomerProtectedRoute />
-          }
-        >
-          <Route
-            path="/minha-conta"
-            element={
-              <CustomerAccountPage />
-            }
-          />
-        </Route>
-        <Route
-          path="/minha-conta/pedidos"
-          element={
-            <CustomerOrdersPage />
-          }
-        />
+<Route
+  element={
+    <CustomerProtectedRoute />
+  }
+>
+  <Route
+    path="/minha-conta"
+    element={
+      <CustomerAccountPage />
+    }
+  />
 
-        <Route
-          path="/minha-conta/pedidos/:number"
-          element={
-            <CustomerOrderDetailsPage />
-          }
-        />
+  <Route
+    path="/minha-conta/pedidos"
+    element={
+      <CustomerOrdersPage />
+    }
+  />
+
+  <Route
+    path="/minha-conta/pedidos/:number"
+    element={
+      <CustomerOrderDetailsPage />
+    }
+  />
+
+  <Route
+    path="/minha-conta/favoritos"
+    element={
+      <CustomerFavoritesPage />
+    }
+  />
+</Route>
 
         <Route
           path="/carrinho"

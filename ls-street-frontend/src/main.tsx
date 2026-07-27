@@ -20,19 +20,23 @@ import {
 } from "./contexts/AuthContext";
 
 import "./styles.css";
-
+import {
+  FavoritesProvider,
+} from "./contexts/FavoritesContext";
 createRoot(
   document.getElementById(
     "root",
   )!,
 ).render(
-  <StrictMode>
+   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-  <CartProvider>
-    <App />
-  </CartProvider>
-</AuthProvider>
+        <FavoritesProvider>
+          <CartProvider>
+            <App />
+          </CartProvider>
+        </FavoritesProvider>
+      </AuthProvider>
     </BrowserRouter>
   </StrictMode>,
 );

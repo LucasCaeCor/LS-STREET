@@ -1,17 +1,13 @@
 import {
   ArrowLeft,
-  ChevronLeft,
-  ChevronRight,
   Heart,
   ImageIcon,
   LoaderCircle,
-  PackageX,
+  ShoppingBag,
   Trash2,
 } from "lucide-react";
 
 import {
-  useCallback,
-  useEffect,
   useState,
 } from "react";
 
@@ -25,29 +21,7 @@ import {
 
 import {
   ApiError,
-  apiRequest,
 } from "../lib/api";
-
-import type {
-  FavoriteItem,
-  FavoritesResponse,
-} from "../types/favorites";
-
-import type {
-  Pagination,
-} from "../types/orders";
-
-const emptyPagination:
-  Pagination = {
-    page: 1,
-    limit: 12,
-
-    totalItems: 0,
-    totalPages: 0,
-
-    hasNextPage: false,
-    hasPreviousPage: false,
-  };
 
 function formatMoney(
   valueInCents: number,
@@ -63,137 +37,37 @@ function formatMoney(
   );
 }
 
-function formatDate(
-  value: string,
-) {
-  return new Intl.DateTimeFormat(
-    "pt-BR",
-    {
-      dateStyle: "medium",
-    },
-  ).format(
-    new Date(value),
-  );
-}
-
 export function CustomerFavoritesPage() {
   const {
-    error: favoriteError,
-
-    isPending,
+    favorites,
+    loading,
+    error,
+    isToggling,
     toggleFavorite,
   } = useFavorites();
 
   const [
-    favorites,
-    setFavorites,
-  ] = useState<
-    FavoriteItem[]
-  >([]);
-
-  const [
-    pagination,
-    setPagination,
-  ] =
-    useState<Pagination>(
-      emptyPagination,
-    );
-
-  const [
-    page,
-    setPage,
-  ] = useState(1);
-
-  const [
-    loading,
-    setLoading,
-  ] = useState(true);
-
-  const [
-    error,
-    setError,
+    actionError,
+    setActionError,
   ] = useState("");
-
-  const loadFavorites =
-    useCallback(async () => {
-      setLoading(true);
-      setError("");
-
-      try {
-        const response =
-          await apiRequest<
-            FavoritesResponse
-          >(
-            `/favorites?page=${page}&limit=12&sortOrder=desc`,
-          );
-
-        setFavorites(
-          response.data,
-        );
-
-        setPagination(
-          response.pagination,
-        );
-      } catch (caughtError) {
-        setFavorites([]);
-
-        setPagination(
-          emptyPagination,
-        );
-
-        setError(
-          caughtError instanceof
-            ApiError
-            ? caughtError.message
-            : "Não foi possível carregar seus favoritos.",
-        );
-      } finally {
-        setLoading(false);
-      }
-    }, [page]);
-
-  useEffect(() => {
-    const timeoutId =
-      window.setTimeout(() => {
-        void loadFavorites();
-      }, 0);
-
-    return () => {
-      window.clearTimeout(
-        timeoutId,
-      );
-    };
-  }, [loadFavorites]);
 
   async function removeFavorite(
     productPublicId: string,
   ) {
-    const result =
+    setActionError("");
+
+    try {
       await toggleFavorite(
         productPublicId,
-        "/minha-conta/favoritos",
       );
-
-    if (result !== false) {
-      return;
-    }
-
-    if (
-      favorites.length === 1 &&
-      page > 1
-    ) {
-      setPage(
-        (current) =>
-          Math.max(
-            1,
-            current - 1,
-          ),
+    } catch (caughtError) {
+      setActionError(
+        caughtError instanceof
+          ApiError
+          ? caughtError.message
+          : "Não foi possível remover o produto dos favoritos.",
       );
-
-      return;
     }
-
-    await loadFavorites();
   }
 
   return (
@@ -209,265 +83,188 @@ export function CustomerFavoritesPage() {
           </h1>
 
           <p>
-            Produtos que você guardou
-            para encontrar novamente.
+            Todos os produtos que você
+            guardou para conferir depois.
           </p>
         </div>
 
         <Link to="/minha-conta">
           <ArrowLeft size={18} />
-
           Voltar para minha conta
         </Link>
       </header>
 
-      {(error ||
-        favoriteError) && (
+      {(error || actionError) && (
         <div className="customer-favorites-error">
-          {error ||
-            favoriteError}
+          {actionError || error}
         </div>
       )}
 
       {loading ? (
         <div className="customer-favorites-state">
           <LoaderCircle
-            size={30}
+            size={32}
             className="icon-spinning"
           />
 
           <span>
-            Carregando favoritos...
+            Carregando seus favoritos...
           </span>
         </div>
-      ) : favorites.length ===
-        0 ? (
+      ) : favorites.length === 0 ? (
         <div className="customer-favorites-state">
-          <Heart size={47} />
+          <Heart size={48} />
 
           <h2>
-            Sua lista está vazia.
+            Você ainda não possui
+            favoritos.
           </h2>
 
           <p>
-            Toque no coração dos
-            produtos que mais combinam
-            com você.
+            Clique no coração dos
+            produtos para guardá-los
+            nesta página.
           </p>
 
           <Link to="/">
+            <ShoppingBag size={17} />
             Explorar produtos
           </Link>
         </div>
       ) : (
-        <>
-          <div className="customer-favorites-grid">
-            {favorites.map(
-              (favorite) => {
-                const {
-                  product,
-                } = favorite;
+        <div className="customer-favorites-grid">
+          {favorites.map(
+            (favorite) => {
+              const {
+                product,
+              } = favorite;
 
-                const pending =
-                  isPending(
-                    product.publicId,
-                  );
+              const removing =
+                isToggling(
+                  product.publicId,
+                );
 
-                const cheapestVariant =
-                  product.variants[0] ??
-                  null;
-
-                const hasDiscount =
-                  cheapestVariant
-                    ?.compareAtPriceInCents !==
-                    null &&
-                  cheapestVariant
-                    ?.compareAtPriceInCents !==
-                    undefined &&
-                  cheapestVariant
-                    .compareAtPriceInCents >
-                    cheapestVariant
-                      .priceInCents;
-
-                return (
-                  <article
-                    key={favorite.id}
-                    className="customer-favorite-card"
+              return (
+                <article
+                  key={favorite.id}
+                  className="customer-favorite-card"
+                >
+                  <Link
+                    to={`/produto/${product.slug}`}
+                    className="customer-favorite-image"
                   >
-                    <button
-                      type="button"
-                      className="customer-favorite-remove"
-                      disabled={pending}
-                      onClick={() => {
-                        void removeFavorite(
-                          product.publicId,
-                        );
-                      }}
-                      aria-label={`Remover ${product.name} dos favoritos`}
-                    >
-                      {pending ? (
-                        <LoaderCircle
-                          size={18}
-                          className="icon-spinning"
-                        />
-                      ) : (
-                        <Trash2
-                          size={18}
-                        />
-                      )}
-                    </button>
+                    {product.image ? (
+                      <img
+                        src={
+                          product.image.url
+                        }
+                        alt={
+                          product.image
+                            .altText ??
+                          product.name
+                        }
+                      />
+                    ) : (
+                      <ImageIcon
+                        size={38}
+                      />
+                    )}
 
-                    <Link
-                      to={`/produto/${product.slug}`}
-                    >
-                      <div className="customer-favorite-image">
-                        {product.image ? (
-                          <img
-                            src={
-                              product.image
-                                .url
-                            }
-                            alt={
-                              product.image
-                                .altText ??
-                              product.name
-                            }
-                          />
-                        ) : (
-                          <div>
-                            <ImageIcon
-                              size={35}
-                            />
+                    {!product.available && (
+                      <span>
+                        ESGOTADO
+                      </span>
+                    )}
+                  </Link>
 
-                            <span>
-                              Sem imagem
-                            </span>
-                          </div>
-                        )}
+                  <section className="customer-favorite-content">
+                    <span className="customer-favorite-category">
+                      {
+                        product.category
+                          .name
+                      }
+                    </span>
 
-                        {!product.available && (
-                          <span>
-                            <PackageX
-                              size={15}
-                            />
+                    <h2>
+                      <Link
+                        to={`/produto/${product.slug}`}
+                      >
+                        {product.name}
+                      </Link>
+                    </h2>
 
-                            Esgotado
-                          </span>
-                        )}
-                      </div>
+                    <p>
+                      {product.shortDescription ??
+                        "Streetwear autêntico LS STREET."}
+                    </p>
 
-                      <section className="customer-favorite-content">
+                    <div className="customer-favorite-information">
+                      <div>
                         <span>
-                          {
-                            product.category
-                              .name
-                          }
+                          Preço
                         </span>
 
-                        <h2>
-                          {product.name}
-                        </h2>
+                        <strong>
+                          {product.minimumPriceInCents !==
+                          null
+                            ? `A partir de ${formatMoney(
+                                product.minimumPriceInCents,
+                              )}`
+                            : "Indisponível"}
+                        </strong>
+                      </div>
 
-                        <p>
-                          {product.shortDescription ??
-                            "Streetwear autêntico LS STREET."}
-                        </p>
+                      <span
+                        className={
+                          product.available
+                            ? "customer-favorite-availability available"
+                            : "customer-favorite-availability unavailable"
+                        }
+                      >
+                        {product.available
+                          ? "Disponível"
+                          : "Sem estoque"}
+                      </span>
+                    </div>
 
-                        {product.brand && (
-                          <small>
-                            {product.brand}
-                          </small>
+                    <footer>
+                      <Link
+                        to={`/produto/${product.slug}`}
+                      >
+                        Ver produto
+                      </Link>
+
+                      <button
+                        type="button"
+                        disabled={
+                          removing
+                        }
+                        onClick={() => {
+                          void removeFavorite(
+                            product.publicId,
+                          );
+                        }}
+                      >
+                        {removing ? (
+                          <LoaderCircle
+                            size={16}
+                            className="icon-spinning"
+                          />
+                        ) : (
+                          <Trash2
+                            size={16}
+                          />
                         )}
 
-                        <footer>
-                          <div>
-                            {hasDiscount &&
-                              cheapestVariant && (
-                                <small>
-                                  {formatMoney(
-                                    cheapestVariant
-                                      .compareAtPriceInCents!,
-                                  )}
-                                </small>
-                              )}
-
-                            <strong>
-                              {product.minimumPriceInCents !==
-                              null
-                                ? formatMoney(
-                                    product.minimumPriceInCents,
-                                  )
-                                : "Indisponível"}
-                            </strong>
-                          </div>
-
-                          <span>
-                            Favoritado em{" "}
-                            {formatDate(
-                              favorite.createdAt,
-                            )}
-                          </span>
-                        </footer>
-                      </section>
-                    </Link>
-                  </article>
-                );
-              },
-            )}
-          </div>
-
-          <footer className="customer-favorites-pagination">
-            <span>
-              Página{" "}
-              {pagination.page} de{" "}
-              {Math.max(
-                pagination.totalPages,
-                1,
-              )}
-            </span>
-
-            <div>
-              <button
-                type="button"
-                disabled={
-                  !pagination
-                    .hasPreviousPage
-                }
-                onClick={() =>
-                  setPage(
-                    (current) =>
-                      Math.max(
-                        1,
-                        current - 1,
-                      ),
-                  )
-                }
-              >
-                <ChevronLeft
-                  size={19}
-                />
-              </button>
-
-              <button
-                type="button"
-                disabled={
-                  !pagination
-                    .hasNextPage
-                }
-                onClick={() =>
-                  setPage(
-                    (current) =>
-                      current + 1,
-                  )
-                }
-              >
-                <ChevronRight
-                  size={19}
-                />
-              </button>
-            </div>
-          </footer>
-        </>
+                        Remover
+                      </button>
+                    </footer>
+                  </section>
+                </article>
+              );
+            },
+          )}
+        </div>
       )}
     </section>
   );

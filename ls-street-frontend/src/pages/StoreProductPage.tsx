@@ -3,6 +3,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ImageIcon,
+    Heart,
   LoaderCircle,
   Minus,
   PackageCheck,
@@ -15,7 +16,9 @@ import {
   Truck,
   X,
 } from "lucide-react";
-
+import {
+  useFavorites,
+} from "../contexts/FavoritesContext";
 import {
   useCallback,
   useEffect,
@@ -108,6 +111,14 @@ export function StoreProductPage() {
     loading: loadingAuth,
     authenticated,
   } = useAuth();
+
+
+  const {
+  isFavorite,
+  isToggling,
+  toggleFavorite,
+} = useFavorites();
+
 
   const [
     product,
@@ -405,7 +416,19 @@ export function StoreProductPage() {
     product?.images[
       activeImageIndex
     ] ?? null;
+const productIsFavorite =
+  product
+    ? isFavorite(
+        product.publicId,
+      )
+    : false;
 
+const togglingFavorite =
+  product
+    ? isToggling(
+        product.publicId,
+      )
+    : false;
   function selectColor(
     color: string,
   ) {
@@ -584,6 +607,62 @@ export function StoreProductPage() {
     );
   }
 
+  async function handleFavorite() {
+  if (!product) {
+    return;
+  }
+
+  setCartError("");
+  setSuccessMessage("");
+
+  if (
+    !loadingAuth &&
+    !authenticated
+  ) {
+    const redirect =
+      encodeURIComponent(
+        `${location.pathname}${location.search}`,
+      );
+
+    navigate(
+      `/conta/entrar?redirect=${redirect}`,
+    );
+
+    return;
+  }
+
+  if (
+    user?.role !==
+    "CUSTOMER"
+  ) {
+    setCartError(
+      "Entre com uma conta de cliente para usar os favoritos.",
+    );
+
+    return;
+  }
+
+  try {
+    const added =
+      await toggleFavorite(
+        product.publicId,
+      );
+
+    setSuccessMessage(
+      added
+        ? "Produto adicionado aos favoritos."
+        : "Produto removido dos favoritos.",
+    );
+  } catch (caughtError) {
+    setCartError(
+      caughtError instanceof
+        ApiError
+        ? caughtError.message
+        : "Não foi possível alterar os favoritos.",
+    );
+  }
+}
+
   async function addToCart() {
     setCartError("");
     setSuccessMessage("");
@@ -742,6 +821,45 @@ export function StoreProductPage() {
         <strong>
           {product.name}
         </strong>
+
+        <button
+  type="button"
+  className={
+    productIsFavorite
+      ? "store-product-detail-favorite active"
+      : "store-product-detail-favorite"
+  }
+  disabled={
+    loadingAuth ||
+    togglingFavorite
+  }
+  aria-pressed={
+    productIsFavorite
+  }
+  onClick={() => {
+    void handleFavorite();
+  }}
+>
+  {togglingFavorite ? (
+    <LoaderCircle
+      size={18}
+      className="icon-spinning"
+    />
+  ) : (
+    <Heart
+      size={18}
+      fill={
+        productIsFavorite
+          ? "currentColor"
+          : "none"
+      }
+    />
+  )}
+
+  {productIsFavorite
+    ? "Remover dos favoritos"
+    : "Adicionar aos favoritos"}
+</button>
       </nav>
 
       <section className="store-product-detail">
