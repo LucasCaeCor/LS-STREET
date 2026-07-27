@@ -89,6 +89,11 @@ import {
 import {
   StoreCartPage,
 } from "./pages/StoreCartPage";
+import {
+  StoreCheckoutPage,
+} from "./pages/StoreCheckoutPage";
+
+
 
 
 function PlaceholderPage({
@@ -244,13 +249,11 @@ export default function App() {
         />
 
         <Route
-          path="/checkout"
-          element={
-            <PlaceholderPage
-              title="Checkout"
-            />
-          }
-        />
+  path="/checkout"
+  element={
+    <StoreCheckoutPage />
+  }
+/>
       </Route>
 
       <Route
