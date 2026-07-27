@@ -187,32 +187,30 @@ export class FavoriteRepository {
     };
 
     const [
-      favorites,
-      totalItems,
-    ] =
-      await this.prisma
-        .$transaction([
-          this.prisma.favorite
-            .findMany({
-              where,
+  favorites,
+  totalItems,
+] = await Promise.all([
+  this.prisma.favorite
+    .findMany({
+      where,
 
-              skip,
-              take: input.limit,
+      skip,
+      take: input.limit,
 
-              orderBy: {
-                createdAt:
-                  input.sortOrder,
-              },
+      orderBy: {
+        createdAt:
+          input.sortOrder,
+      },
 
-              select:
-                favoriteSelect,
-            }),
+      select:
+        favoriteSelect,
+    }),
 
-          this.prisma.favorite
-            .count({
-              where,
-            }),
-        ]);
+  this.prisma.favorite
+    .count({
+      where,
+    }),
+]);
 
     return {
       favorites,

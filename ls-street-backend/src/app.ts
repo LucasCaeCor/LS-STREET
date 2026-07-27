@@ -54,7 +54,9 @@ import {
 import {
   adminCustomerRoutes,
 } from "./modules/admin-customers/admin-customer.routes";
-
+import {
+  adminFavoriteRoutes,
+} from "./modules/admin-favorites/admin-favorite.routes";
 
 
 
@@ -209,6 +211,14 @@ await app.register(
   adminCustomerRoutes,
   {
     prefix: "/admin/customers",
+  },
+);
+
+await app.register(
+  adminFavoriteRoutes,
+  {
+    prefix:
+      "/admin/favorites",
   },
 );
 await app.register(
