@@ -86,7 +86,9 @@ import {
 import {
   StoreProductPage,
 } from "./pages/StoreProductPage";
-
+import {
+  StoreCartPage,
+} from "./pages/StoreCartPage";
 
 
 function PlaceholderPage({
@@ -232,6 +234,23 @@ export default function App() {
             }
           />
         </Route>
+
+
+        <Route
+          path="/carrinho"
+          element={
+            <StoreCartPage />
+          }
+        />
+
+        <Route
+          path="/checkout"
+          element={
+            <PlaceholderPage
+              title="Checkout"
+            />
+          }
+        />
       </Route>
 
       <Route

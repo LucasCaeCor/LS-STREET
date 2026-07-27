@@ -60,8 +60,8 @@ export interface StoreCart {
 
   summary: StoreCartSummary;
 
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface StoreCartResponse {

@@ -11,6 +11,9 @@ import {
 } from "react-router";
 
 import App from "./App";
+import {
+  CartProvider,
+} from "./contexts/CartContext";
 
 import {
   AuthProvider,
@@ -26,8 +29,10 @@ createRoot(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <App />
-      </AuthProvider>
+  <CartProvider>
+    <App />
+  </CartProvider>
+</AuthProvider>
     </BrowserRouter>
   </StrictMode>,
 );

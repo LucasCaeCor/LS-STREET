@@ -2,7 +2,9 @@ import {
   Menu,
   Search,
   ShieldCheck,
+  ShoppingBag,
   UserRound,
+  LoaderCircle,
   X,
 } from "lucide-react";
 
@@ -14,6 +16,14 @@ import {
   useState,
   type FormEvent,
 } from "react";
+
+import {
+  StoreCartDrawer,
+} from "./StoreCartDrawer";
+
+import {
+  useCart,
+} from "../contexts/CartContext";
 
 import {
   Link,
@@ -32,6 +42,12 @@ export function StoreLayout() {
     authenticated,
     } = useAuth();
     
+    const {
+  cart,
+  loading: loadingCart,
+  openCart,
+} = useCart();
+
   const [
     mobileMenuOpen,
     setMobileMenuOpen,
@@ -41,6 +57,33 @@ export function StoreLayout() {
     search,
     setSearch,
   ] = useState("");
+
+  function handleCartClick() {
+  if (
+    authenticated &&
+    user?.role === "CUSTOMER"
+  ) {
+    openCart();
+
+    return;
+  }
+
+  if (
+    authenticated &&
+    user?.role === "ADMIN"
+  ) {
+    navigate("/admin");
+
+    return;
+  }
+
+  navigate(
+    `/conta/entrar?redirect=${encodeURIComponent(
+      "/carrinho",
+    )}`,
+  );
+}
+
 
   function submitSearch(
     event: FormEvent,
@@ -181,50 +224,79 @@ export function StoreLayout() {
             />
           </form>
           <div className="store-account-actions">
-  {loading ? (
-    <div className="store-account-loading">
-      <UserRound size={19} />
-    </div>
-  ) : authenticated &&
-    user?.role === "CUSTOMER" ? (
-    <Link
-      to="/minha-conta"
-      className="store-account-link"
-      onClick={closeMenu}
-    >
-      <UserRound size={19} />
+                {loading ? (
+                    <div className="store-account-loading">
+                    <UserRound size={19} />
+                    </div>
+                ) : authenticated &&
+                    user?.role === "CUSTOMER" ? (
+                    <Link
+                    to="/minha-conta"
+                    className="store-account-link"
+                    onClick={closeMenu}
+                    >
+                    <UserRound size={19} />
 
-      <span>
-        {user.name.split(" ")[0]}
-      </span>
-    </Link>
-  ) : authenticated &&
-    user?.role === "ADMIN" ? (
-    <Link
-      to="/admin"
-      className="store-account-link"
-      onClick={closeMenu}
-    >
-      <ShieldCheck
-        size={19}
-      />
+                    <span>
+                        {user.name.split(" ")[0]}
+                    </span>
+                    </Link>
+                ) : authenticated &&
+                    user?.role === "ADMIN" ? (
+                    <Link
+                    to="/admin"
+                    className="store-account-link"
+                    onClick={closeMenu}
+                    >
+                    <ShieldCheck
+                        size={19}
+                    />
 
-      <span>Painel</span>
-    </Link>
-  ) : (
-    <Link
-      to="/conta/entrar"
-      className="store-account-link"
-      onClick={closeMenu}
-    >
-      <UserRound size={19} />
+                    <span>Painel</span>
+                    </Link>
+                ) : (
+                    <Link
+                    to="/conta/entrar"
+                    className="store-account-link"
+                    onClick={closeMenu}
+                    >
+                    <UserRound size={19} />
 
-      <span>Entrar</span>
-    </Link>
-  )}
-</div>
+                    <span>Entrar</span>
+                    </Link>
+                )}
+            </div>
+                    <button
+                    type="button"
+                    className="store-cart-header-button"
+                    onClick={handleCartClick}
+                    aria-label="Abrir carrinho"
+                    >
+                    {loadingCart ? (
+                        <LoaderCircle
+                        size={19}
+                        className="icon-spinning"
+                        />
+                    ) : (
+                        <ShoppingBag
+                        size={19}
+                        />
+                    )}
+
+                    {(cart?.summary
+                        .totalQuantity ?? 0) >
+                        0 && (
+                        <span>
+                        {
+                            cart!.summary
+                            .totalQuantity
+                        }
+                        </span>
+                    )}
+                    </button>
         </div>
       </header>
+      <StoreCartDrawer />
 
       <main className="store-main">
         <Outlet />
