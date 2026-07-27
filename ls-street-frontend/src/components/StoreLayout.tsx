@@ -1,9 +1,14 @@
 import {
-
   Menu,
   Search,
+  ShieldCheck,
+  UserRound,
   X,
 } from "lucide-react";
+
+import {
+  useAuth,
+} from "../contexts/AuthContext";
 
 import {
   useState,
@@ -20,6 +25,13 @@ export function StoreLayout() {
   const navigate =
     useNavigate();
 
+
+    const {
+    user,
+    loading,
+    authenticated,
+    } = useAuth();
+    
   const [
     mobileMenuOpen,
     setMobileMenuOpen,
@@ -168,6 +180,49 @@ export function StoreLayout() {
               aria-label="Buscar produtos"
             />
           </form>
+          <div className="store-account-actions">
+  {loading ? (
+    <div className="store-account-loading">
+      <UserRound size={19} />
+    </div>
+  ) : authenticated &&
+    user?.role === "CUSTOMER" ? (
+    <Link
+      to="/minha-conta"
+      className="store-account-link"
+      onClick={closeMenu}
+    >
+      <UserRound size={19} />
+
+      <span>
+        {user.name.split(" ")[0]}
+      </span>
+    </Link>
+  ) : authenticated &&
+    user?.role === "ADMIN" ? (
+    <Link
+      to="/admin"
+      className="store-account-link"
+      onClick={closeMenu}
+    >
+      <ShieldCheck
+        size={19}
+      />
+
+      <span>Painel</span>
+    </Link>
+  ) : (
+    <Link
+      to="/conta/entrar"
+      className="store-account-link"
+      onClick={closeMenu}
+    >
+      <UserRound size={19} />
+
+      <span>Entrar</span>
+    </Link>
+  )}
+</div>
         </div>
       </header>
 

@@ -25,13 +25,25 @@ interface LoginInput {
   password: string;
 }
 
+interface RegisterInput {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+}
+
 interface AuthContextValue {
   user: AuthUser | null;
+
   loading: boolean;
   authenticated: boolean;
 
   login(
     input: LoginInput,
+  ): Promise<AuthUser>;
+
+  register(
+    input: RegisterInput,
   ): Promise<AuthUser>;
 
   logout(): Promise<void>;
@@ -50,7 +62,9 @@ export function AuthProvider({
   children,
 }: AuthProviderProps) {
   const [user, setUser] =
-    useState<AuthUser | null>(null);
+    useState<AuthUser | null>(
+      null,
+    );
 
   const [loading, setLoading] =
     useState(true);
@@ -63,7 +77,9 @@ export function AuthProvider({
             CurrentUserResponse
           >("/auth/me");
 
-        setUser(response.data.user);
+        setUser(
+          response.data.user,
+        );
       } catch {
         setUser(null);
         removeAccessToken();
@@ -73,63 +89,119 @@ export function AuthProvider({
     }, []);
 
   useEffect(() => {
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  void loadCurrentUser();
-}, [loadCurrentUser]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadCurrentUser();
+  }, [loadCurrentUser]);
 
-  async function login(
-    input: LoginInput,
-  ) {
-    const response =
-      await apiRequest<AuthResponse>(
-        "/auth/login",
-        {
-          method: "POST",
+  const login =
+    useCallback(
+      async (
+        input: LoginInput,
+      ) => {
+        const response =
+          await apiRequest<
+            AuthResponse
+          >(
+            "/auth/login",
+            {
+              method: "POST",
 
-          body: JSON.stringify(
-            input,
-          ),
+              body: JSON.stringify(
+                input,
+              ),
 
-          retryOnUnauthorized:
-            false,
-        },
-      );
+              retryOnUnauthorized:
+                false,
+            },
+          );
 
-    setAccessToken(
-      response.data.accessToken,
+        setAccessToken(
+          response.data
+            .accessToken,
+        );
+
+        setUser(
+          response.data.user,
+        );
+
+        return response.data.user;
+      },
+      [],
     );
 
-    setUser(response.data.user);
+  const register =
+    useCallback(
+      async (
+        input: RegisterInput,
+      ) => {
+        const response =
+          await apiRequest<
+            AuthResponse
+          >(
+            "/auth/register",
+            {
+              method: "POST",
 
-    return response.data.user;
-  }
+              body: JSON.stringify(
+                input,
+              ),
 
-  async function logout() {
-    try {
-      await apiRequest(
-        "/auth/logout",
-        {
-          method: "POST",
-          retryOnUnauthorized:
-            false,
-        },
-      );
-    } finally {
-      removeAccessToken();
-      setUser(null);
-    }
-  }
+              retryOnUnauthorized:
+                false,
+            },
+          );
+
+        setAccessToken(
+          response.data
+            .accessToken,
+        );
+
+        setUser(
+          response.data.user,
+        );
+
+        return response.data.user;
+      },
+      [],
+    );
+
+  const logout =
+    useCallback(async () => {
+      try {
+        await apiRequest(
+          "/auth/logout",
+          {
+            method: "POST",
+
+            retryOnUnauthorized:
+              false,
+          },
+        );
+      } finally {
+        removeAccessToken();
+        setUser(null);
+      }
+    }, []);
 
   const value = useMemo(
     () => ({
       user,
       loading,
+
       authenticated:
         Boolean(user),
+
       login,
+      register,
       logout,
     }),
-    [user, loading],
+    [
+      user,
+      loading,
+      login,
+      register,
+      logout,
+    ],
   );
 
   return (
@@ -140,6 +212,7 @@ export function AuthProvider({
     </AuthContext.Provider>
   );
 }
+
 // eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context =

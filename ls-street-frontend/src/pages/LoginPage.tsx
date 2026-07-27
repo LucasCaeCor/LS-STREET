@@ -28,11 +28,12 @@ export function LoginPage() {
   const navigate =
     useNavigate();
 
-  const {
-    login,
-    authenticated,
-    user,
-  } = useAuth();
+const {
+  login,
+  logout,
+  authenticated,
+  user,
+} = useAuth();
 
   const [email, setEmail] =
     useState("");
@@ -81,13 +82,15 @@ export function LoginPage() {
       if (
         authenticatedUser.role !==
         "ADMIN"
-      ) {
+        ) {
+        await logout();
+
         setError(
-          "Este painel é exclusivo para administradores.",
+            "Este painel é exclusivo para administradores.",
         );
 
         return;
-      }
+        }
 
       navigate(
         "/admin",

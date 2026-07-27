@@ -1,5 +1,4 @@
 import {
-  
   Route,
   Routes,
 } from "react-router";
@@ -9,12 +8,56 @@ import {
 } from "./components/AdminLayout";
 
 import {
+  CustomerProtectedRoute,
+} from "./components/CustomerProtectedRoute";
+
+import {
   ProtectedRoute,
 } from "./components/ProtectedRoute";
 
 import {
+  StoreLayout,
+} from "./components/StoreLayout";
+
+import {
+  AuditPage,
+} from "./pages/AuditPage";
+
+import {
+  BannersPage,
+} from "./pages/BannersPage";
+
+import {
+  CategoriesPage,
+} from "./pages/CategoriesPage";
+
+import {
+  CouponsPage,
+} from "./pages/CouponsPage";
+
+import {
+  CustomerAccountPage,
+} from "./pages/CustomerAccountPage";
+
+import {
+  CustomerLoginPage,
+} from "./pages/CustomerLoginPage";
+
+import {
+  CustomerRegisterPage,
+} from "./pages/CustomerRegisterPage";
+
+import {
+  CustomersPage,
+} from "./pages/CustomersPage";
+
+import {
   DashboardPage,
 } from "./pages/DashboardPage";
+
+import {
+  InventoryPage,
+} from "./pages/InventoryPage";
 
 import {
   LoginPage,
@@ -29,38 +72,16 @@ import {
 } from "./pages/OrdersPage";
 
 import {
-  CategoriesPage,
-} from "./pages/CategoriesPage";
+  PaymentsPage,
+} from "./pages/PaymentsPage";
+
 import {
   ProductsPage,
 } from "./pages/ProductsPage";
-import {
-  InventoryPage,
-} from "./pages/InventoryPage";
-import {
-  PaymentsPage,
-} from "./pages/PaymentsPage";
-import {
-  CouponsPage,
-} from "./pages/CouponsPage";
-import {
-  BannersPage,
-} from "./pages/BannersPage";
-import {
-  AuditPage,
-} from "./pages/AuditPage";
-import {
-  CustomersPage,
-} from "./pages/CustomersPage";
-import {
-  StoreLayout,
-} from "./components/StoreLayout";
 
 import {
   StoreHomePage,
 } from "./pages/StoreHomePage";
-
-
 
 function PlaceholderPage({
   title,
@@ -86,21 +107,19 @@ function PlaceholderPage({
 export default function App() {
   return (
     <Routes>
+      {/* Login administrativo */}
       <Route
         path="/login"
         element={<LoginPage />}
       />
 
+      {/* Área administrativa */}
       <Route
-        element={
-          <ProtectedRoute />
-        }
+        element={<ProtectedRoute />}
       >
         <Route
           path="/admin"
-          element={
-            <AdminLayout />
-          }
+          element={<AdminLayout />}
         >
           <Route
             index
@@ -110,44 +129,44 @@ export default function App() {
           />
 
           <Route
-  path="pedidos"
-  element={<OrdersPage />}
-/>
+            path="pedidos"
+            element={<OrdersPage />}
+          />
 
           <Route
-  path="produtos"
-  element={<ProductsPage />}
-/>
+            path="produtos"
+            element={<ProductsPage />}
+          />
 
           <Route
-  path="categorias"
-  element={<CategoriesPage />}
-/>
+            path="categorias"
+            element={<CategoriesPage />}
+          />
 
           <Route
-  path="estoque"
-  element={<InventoryPage />}
-/>
+            path="estoque"
+            element={<InventoryPage />}
+          />
 
           <Route
-  path="pagamentos"
-  element={<PaymentsPage />}
-/>
+            path="pagamentos"
+            element={<PaymentsPage />}
+          />
 
           <Route
-  path="cupons"
-  element={<CouponsPage />}
-/>
+            path="cupons"
+            element={<CouponsPage />}
+          />
 
           <Route
-  path="banners"
-  element={<BannersPage />}
-/>
+            path="banners"
+            element={<BannersPage />}
+          />
 
           <Route
-  path="clientes"
-  element={<CustomersPage />}
-/>
+            path="clientes"
+            element={<CustomersPage />}
+          />
 
           <Route
             path="favoritos"
@@ -159,28 +178,53 @@ export default function App() {
           />
 
           <Route
-  path="auditoria"
-  element={<AuditPage />}
-/>
+            path="auditoria"
+            element={<AuditPage />}
+          />
+        </Route>
+      </Route>
+
+      {/* Loja pública */}
+      <Route
+        element={<StoreLayout />}
+      >
+        <Route
+          path="/"
+          element={<StoreHomePage />}
+        />
+
+        <Route
+          path="/conta/entrar"
+          element={
+            <CustomerLoginPage />
+          }
+        />
+
+        <Route
+          path="/conta/cadastro"
+          element={
+            <CustomerRegisterPage />
+          }
+        />
+
+        {/* Área protegida do cliente */}
+        <Route
+          element={
+            <CustomerProtectedRoute />
+          }
+        >
+          <Route
+            path="/minha-conta"
+            element={
+              <CustomerAccountPage />
+            }
+          />
         </Route>
       </Route>
 
       <Route
-  element={<StoreLayout />}
->
-  <Route
-    path="/"
-    element={
-      <StoreHomePage />
-    }
-  />
-</Route>
-
-      <Route
         path="*"
-        element={
-          <NotFoundPage />
-        }
+        element={<NotFoundPage />}
       />
     </Routes>
   );
