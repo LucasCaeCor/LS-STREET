@@ -24,6 +24,7 @@ const bannerSelect = {
   imageUrl: true,
   mobileImageUrl: true,
   publicId: true,
+  mobilePublicId: true,
 
   link: true,
   buttonText: true,

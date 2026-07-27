@@ -494,21 +494,28 @@ model Favorite {
 }
 
 model Banner {
-  id             String         @id @default(auto()) @map("_id") @db.ObjectId
-  title          String
-  subtitle       String?
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  title    String
+  subtitle String?
+
   imageUrl       String
   mobileImageUrl String?
   publicId       String?
-  link           String?
-  buttonText     String?
-  position       BannerPosition @default(HOME_HERO)
-  sortOrder      Int            @default(0)
-  active         Boolean        @default(true)
-  startsAt       DateTime?
-  endsAt         DateTime?
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  mobilePublicId String?
+
+  link       String?
+  buttonText String?
+
+  position  BannerPosition @default(HOME_HERO)
+  sortOrder Int            @default(0)
+  active    Boolean        @default(true)
+
+  startsAt DateTime?
+  endsAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([active])
   @@index([position])

@@ -48,6 +48,11 @@ export const createBannerSchema =
         .trim()
         .max(300)
         .optional(),
+      mobilePublicId: z
+        .string()
+        .trim()
+        .max(300)
+        .optional(),
 
       link: z
         .string()
@@ -126,6 +131,12 @@ export const updateBannerSchema =
         .optional(),
 
       publicId: z
+        .string()
+        .trim()
+        .max(300)
+        .nullable()
+        .optional(),
+      mobilePublicId: z
         .string()
         .trim()
         .max(300)

@@ -35,6 +35,15 @@ import {
 import {
   BannerService,
 } from "./banner.service";
+import {
+  AppError,
+} from "../../core/errors/app-error";
+
+import {
+  cloudinaryService,
+} from "../../services/cloudinary/cloudinary.service";
+
+
 
 function createBannerController() {
   const repository =
@@ -82,6 +91,97 @@ export async function adminBannerRoutes(
   const controller =
     createBannerController();
 
+
+
+fastify.post(
+  "/upload",
+  {
+    preHandler: [
+      fastify.requireAdmin,
+    ],
+  },
+  async (
+    request,
+    reply,
+  ) => {
+    const file =
+      await request.file();
+
+    if (!file) {
+      throw new AppError(
+        "Selecione uma imagem.",
+        400,
+        "BANNER_IMAGE_REQUIRED",
+      );
+    }
+
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/avif",
+    ];
+
+    if (
+      !allowedTypes.includes(
+        file.mimetype,
+      )
+    ) {
+      throw new AppError(
+        "Use uma imagem JPEG, PNG, WebP ou AVIF.",
+        422,
+        "INVALID_BANNER_IMAGE_TYPE",
+      );
+    }
+
+    const buffer =
+      await file.toBuffer();
+
+    if (buffer.length === 0) {
+      throw new AppError(
+        "A imagem enviada está vazia.",
+        422,
+        "EMPTY_BANNER_IMAGE",
+      );
+    }
+
+    const normalizedFilename =
+      file.filename
+        .replace(
+          /\.[^/.]+$/,
+          "",
+        )
+        .replace(
+          /[^a-zA-Z0-9_-]/g,
+          "-",
+        )
+        .slice(0, 80);
+
+    const uploadedImage =
+      await cloudinaryService
+        .uploadImage(
+          buffer,
+          {
+            folder:
+              "ls-street/banners",
+
+            filename:
+              `${Date.now()}-${normalizedFilename || "banner"}`,
+          },
+        );
+
+    return reply
+      .status(201)
+      .send({
+        success: true,
+
+        message:
+          "Imagem enviada com sucesso.",
+
+        data: uploadedImage,
+      });
+  },
+);
   fastify.post<{
     Body: CreateBannerBody;
   }>(

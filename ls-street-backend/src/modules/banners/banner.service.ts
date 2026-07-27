@@ -71,6 +71,9 @@ export class BannerService {
       publicId:
         body.publicId,
 
+      mobilePublicId:
+        body.mobilePublicId,
+
       link:
         body.link,
 
@@ -224,6 +227,15 @@ export class BannerService {
         body.publicId;
     }
 
+
+    if (
+        body.mobilePublicId !==
+        undefined
+        ) {
+        data.mobilePublicId =
+            body.mobilePublicId;
+        }
+
     if (
       body.link !== undefined
     ) {
@@ -284,19 +296,32 @@ export class BannerService {
           data,
         );
 
-    if (
-      body.publicId &&
-      currentBanner.publicId &&
-      body.publicId !==
-        currentBanner.publicId
-    ) {
-      await cloudinaryService
-        .deleteImage(
-          currentBanner.publicId,
-        )
-        .catch(() => undefined);
-    }
+   if (
+  body.publicId !== undefined &&
+  currentBanner.publicId &&
+  body.publicId !==
+    currentBanner.publicId
+) {
+  await cloudinaryService
+    .deleteImage(
+      currentBanner.publicId,
+    )
+    .catch(() => undefined);
+}
 
+if (
+  body.mobilePublicId !==
+    undefined &&
+  currentBanner.mobilePublicId &&
+  body.mobilePublicId !==
+    currentBanner.mobilePublicId
+) {
+  await cloudinaryService
+    .deleteImage(
+      currentBanner.mobilePublicId,
+    )
+    .catch(() => undefined);
+}
     return updatedBanner;
   }
 
@@ -317,7 +342,16 @@ export class BannerService {
         .deleteImage(
           banner.publicId,
         )
+
         .catch(() => undefined);
     }
+
+    if (banner.mobilePublicId) {
+  await cloudinaryService
+    .deleteImage(
+      banner.mobilePublicId,
+    )
+    .catch(() => undefined);
+}
   }
 }
