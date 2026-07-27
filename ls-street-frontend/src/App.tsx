@@ -102,7 +102,9 @@ import {
 import {
   CustomerFavoritesPage,
 } from "./pages/CustomerFavoritesPage";
-
+import {
+  AdminFavoritesPage,
+} from "./pages/AdminFavoritesPage";
 
 function PlaceholderPage({
   title,
@@ -190,13 +192,11 @@ export default function App() {
           />
 
           <Route
-            path="favoritos"
-            element={
-              <PlaceholderPage
-                title="Favoritos"
-              />
-            }
-          />
+  path="favoritos"
+  element={
+    <AdminFavoritesPage />
+  }
+/>
 
           <Route
             path="auditoria"
