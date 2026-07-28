@@ -106,26 +106,26 @@ import {
   AdminFavoritesPage,
 } from "./pages/AdminFavoritesPage";
 
-function PlaceholderPage({
-  title,
-}: {
-  title: string;
-}) {
-  return (
-    <div className="placeholder-page">
-      <span className="eyebrow">
-        LS STREET
-      </span>
+// function PlaceholderPage({
+//   title,
+// }: {
+//   title: string;
+// }) {
+//   return (
+//     <div className="placeholder-page">
+//       <span className="eyebrow">
+//         LS STREET
+//       </span>
 
-      <h1>{title}</h1>
+//       <h1>{title}</h1>
 
-      <p>
-        Esta tela será implementada
-        na próxima etapa.
-      </p>
-    </div>
-  );
-}
+//       <p>
+//         Esta tela será implementada
+//         na próxima etapa.
+//       </p>
+//     </div>
+//   );
+// }
 
 export default function App() {
   return (

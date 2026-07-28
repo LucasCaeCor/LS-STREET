@@ -1,6 +1,6 @@
 const API_URL =
   import.meta.env.VITE_API_URL ??
-  "http://localhost:3333";
+  "http://localhost:5173";
 
 const ACCESS_TOKEN_KEY =
   "ls_street_access_token";
