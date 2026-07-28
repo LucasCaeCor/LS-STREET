@@ -308,55 +308,25 @@ export function StoreProductPage() {
       [activeVariants],
     );
 
-  const colorOptions =
-    useMemo(
-      () =>
-        uniqueValues(
-          activeVariants
-            .filter(
-              (variant) =>
-                !hasSizes ||
-                selectedSize ===
-                  null ||
-                variant.size ===
-                  selectedSize,
-            )
-            .map(
-              (variant) =>
-                variant.color,
-            ),
-        ),
-      [
-        activeVariants,
-        hasSizes,
-        selectedSize,
-      ],
-    );
+  const colorOptions = useMemo(
+  () =>
+    uniqueValues(
+      activeVariants.map(
+        (variant) => variant.color,
+      ),
+    ),
+  [activeVariants],
+);
 
-  const sizeOptions =
-    useMemo(
-      () =>
-        uniqueValues(
-          activeVariants
-            .filter(
-              (variant) =>
-                !hasColors ||
-                selectedColor ===
-                  null ||
-                variant.color ===
-                  selectedColor,
-            )
-            .map(
-              (variant) =>
-                variant.size,
-            ),
-        ),
-      [
-        activeVariants,
-        hasColors,
-        selectedColor,
-      ],
-    );
+const sizeOptions = useMemo(
+  () =>
+    uniqueValues(
+      activeVariants.map(
+        (variant) => variant.size,
+      ),
+    ),
+  [activeVariants],
+);
 
   const selectedVariant =
     useMemo(
@@ -429,128 +399,123 @@ const togglingFavorite =
         product.publicId,
       )
     : false;
-  function selectColor(
-    color: string,
-  ) {
-    const matchingVariants =
-      activeVariants.filter(
-        (variant) =>
-          variant.color ===
-          color,
-      );
-
-    const currentCombination =
-      matchingVariants.find(
-        (variant) =>
-          !hasSizes ||
-          variant.size ===
-            selectedSize,
-      );
-
-    const fallbackVariant =
-      matchingVariants.find(
-        (variant) =>
-          calculateAvailableStock(
-            variant,
-          ) > 0,
-      ) ??
-      matchingVariants[0] ??
-      null;
-
-    setSelectedColor(color);
-
-    if (
-      hasSizes &&
-      !currentCombination
-    ) {
-      setSelectedSize(
-        fallbackVariant?.size ??
-          null,
-      );
-    }
-
-    setQuantity(1);
-    setCartError("");
-    setSuccessMessage("");
-  }
-
-  function selectSize(
-    size: string,
-  ) {
-    const matchingVariants =
-      activeVariants.filter(
-        (variant) =>
-          variant.size === size,
-      );
-
-    const currentCombination =
-      matchingVariants.find(
-        (variant) =>
-          !hasColors ||
-          variant.color ===
-            selectedColor,
-      );
-
-    const fallbackVariant =
-      matchingVariants.find(
-        (variant) =>
-          calculateAvailableStock(
-            variant,
-          ) > 0,
-      ) ??
-      matchingVariants[0] ??
-      null;
-
-    setSelectedSize(size);
-
-    if (
-      hasColors &&
-      !currentCombination
-    ) {
-      setSelectedColor(
-        fallbackVariant?.color ??
-          null,
-      );
-    }
-
-    setQuantity(1);
-    setCartError("");
-    setSuccessMessage("");
-  }
-
-  function colorHasStock(
-    color: string,
-  ) {
-    return activeVariants.some(
+ function selectColor(
+  color: string,
+) {
+  const matchingVariants =
+    activeVariants.filter(
       (variant) =>
-        variant.color === color &&
+        variant.color === color,
+    );
+
+  const currentCombination =
+    matchingVariants.find(
+      (variant) =>
         (!hasSizes ||
-          selectedSize ===
-            null ||
           variant.size ===
             selectedSize) &&
         calculateAvailableStock(
           variant,
         ) > 0,
     );
+
+  const fallbackVariant =
+    matchingVariants.find(
+      (variant) =>
+        calculateAvailableStock(
+          variant,
+        ) > 0,
+    ) ??
+    matchingVariants[0] ??
+    null;
+
+  setSelectedColor(color);
+
+  if (
+    hasSizes &&
+    !currentCombination
+  ) {
+    setSelectedSize(
+      fallbackVariant?.size ??
+        null,
+    );
   }
 
-  function sizeHasStock(
-    size: string,
-  ) {
-    return activeVariants.some(
+  setQuantity(1);
+  setCartError("");
+  setSuccessMessage("");
+}
+
+  function selectSize(
+  size: string,
+) {
+  const matchingVariants =
+    activeVariants.filter(
       (variant) =>
-        variant.size === size &&
+        variant.size === size,
+    );
+
+  const currentCombination =
+    matchingVariants.find(
+      (variant) =>
         (!hasColors ||
-          selectedColor ===
-            null ||
           variant.color ===
             selectedColor) &&
         calculateAvailableStock(
           variant,
         ) > 0,
     );
+
+  const fallbackVariant =
+    matchingVariants.find(
+      (variant) =>
+        calculateAvailableStock(
+          variant,
+        ) > 0,
+    ) ??
+    matchingVariants[0] ??
+    null;
+
+  setSelectedSize(size);
+
+  if (
+    hasColors &&
+    !currentCombination
+  ) {
+    setSelectedColor(
+      fallbackVariant?.color ??
+        null,
+    );
   }
+
+  setQuantity(1);
+  setCartError("");
+  setSuccessMessage("");
+}
+
+  function colorHasStock(
+  color: string,
+) {
+  return activeVariants.some(
+    (variant) =>
+      variant.color === color &&
+      calculateAvailableStock(
+        variant,
+      ) > 0,
+  );
+}
+
+function sizeHasStock(
+  size: string,
+) {
+  return activeVariants.some(
+    (variant) =>
+      variant.size === size &&
+      calculateAvailableStock(
+        variant,
+      ) > 0,
+  );
+}
 
   function decreaseQuantity() {
     setQuantity(
