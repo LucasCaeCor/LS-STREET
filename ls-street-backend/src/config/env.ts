@@ -34,7 +34,10 @@ const envSchema = z.object({
   API_URL: z
   .string()
   .url(),
-
+FRONTEND_URL: z
+  .string()
+  .url()
+  .default("http://localhost:5173"),  
   CLOUDINARY_CLOUD_NAME: z
     .string()
     .min(1, "CLOUDINARY_CLOUD_NAME é obrigatório."),

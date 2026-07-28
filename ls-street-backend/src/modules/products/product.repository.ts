@@ -238,103 +238,105 @@ export class ProductRepository {
   }
 
   async findPublic(filters: PublicProductFilters) {
-    const where = this.buildWhere({
-      ...filters,
-      status: "ACTIVE",
-    });
+  const where = this.buildWhere({
+    ...filters,
+    status: "ACTIVE",
+  });
 
-    where.category = {
-      is: {
-        ...(filters.categorySlug
-          ? {
-              slug: filters.categorySlug,
-            }
-          : {}),
+  where.category = {
+    is: {
+      ...(filters.categorySlug
+        ? {
+            slug: filters.categorySlug,
+          }
+        : {}),
+      isActive: true,
+    },
+  };
 
-        isActive: true,
-      },
-    };
+  where.variants = {
+    some: {
+      isActive: true,
+      ...(filters.minPriceInCents !== undefined ||
+      filters.maxPriceInCents !== undefined
+        ? {
+            priceInCents: {
+              ...(filters.minPriceInCents !== undefined
+                ? {
+                    gte: filters.minPriceInCents,
+                  }
+                : {}),
+              ...(filters.maxPriceInCents !== undefined
+                ? {
+                    lte: filters.maxPriceInCents,
+                  }
+                : {}),
+            },
+          }
+        : {}),
+    },
+  };
 
-    where.variants = {
-      some: {
-        isActive: true,
+  const skip =
+    (filters.page - 1) * filters.limit;
 
-        ...(filters.minPriceInCents !== undefined ||
-        filters.maxPriceInCents !== undefined
-          ? {
-              priceInCents: {
-                ...(filters.minPriceInCents !== undefined
-                  ? {
-                      gte: filters.minPriceInCents,
-                    }
-                  : {}),
+  const orderBy: Prisma.ProductOrderByWithRelationInput = {
+    [filters.sortBy]: filters.sortOrder,
+  };
 
-                ...(filters.maxPriceInCents !== undefined
-                  ? {
-                      lte: filters.maxPriceInCents,
-                    }
-                  : {}),
-              },
-            }
-          : {}),
-      },
-    };
+  const [products, totalItems] =
+    await Promise.all([
+      this.prisma.product.findMany({
+        where,
+        include: publicProductInclude,
+        orderBy,
+        skip,
+        take: filters.limit,
+      }),
 
-    const skip = (filters.page - 1) * filters.limit;
+      this.prisma.product.count({
+        where,
+      }),
+    ]);
 
-    const orderBy: Prisma.ProductOrderByWithRelationInput = {
-      [filters.sortBy]: filters.sortOrder,
-    };
+  return {
+    products,
+    totalItems,
+  };
+}
+  async findAdmin(
+  filters: ListProductsFilters,
+) {
+  const where =
+    this.buildWhere(filters);
 
-    const [products, totalItems] =
-      await this.prisma.$transaction([
-        this.prisma.product.findMany({
-          where,
-          include: publicProductInclude,
-          orderBy,
-          skip,
-          take: filters.limit,
-        }),
+  const skip =
+    (filters.page - 1) * filters.limit;
 
-        this.prisma.product.count({
-          where,
-        }),
-      ]);
+  const orderBy: Prisma.ProductOrderByWithRelationInput = {
+    [filters.sortBy]: filters.sortOrder,
+  };
 
-    return {
-      products,
-      totalItems,
-    };
-  }
+  const [products, totalItems] =
+    await Promise.all([
+      this.prisma.product.findMany({
+        where,
+        include: productInclude,
+        orderBy,
+        skip,
+        take: filters.limit,
+      }),
 
-  async findAdmin(filters: ListProductsFilters) {
-    const where = this.buildWhere(filters);
-    const skip = (filters.page - 1) * filters.limit;
+      this.prisma.product.count({
+        where,
+      }),
+    ]);
 
-    const orderBy: Prisma.ProductOrderByWithRelationInput = {
-      [filters.sortBy]: filters.sortOrder,
-    };
-
-    const [products, totalItems] =
-      await this.prisma.$transaction([
-        this.prisma.product.findMany({
-          where,
-          include: productInclude,
-          orderBy,
-          skip,
-          take: filters.limit,
-        }),
-
-        this.prisma.product.count({
-          where,
-        }),
-      ]);
-
-    return {
-      products,
-      totalItems,
-    };
-  }
+  return {
+    products,
+    totalItems,
+  };
+}
 
   async findById(id: string) {
     return this.prisma.product.findUnique({
