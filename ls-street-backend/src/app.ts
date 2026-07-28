@@ -73,47 +73,47 @@ export async function buildApp() {
   registerErrorSchemas(app);
 
   const allowedOrigins = [
-    "http://localhost:5173",
-    env.FRONTEND_URL,
-  ];
+  "http://localhost:5173",
+  env.FRONTEND_URL,
+];
 
-  await app.register(cors, {
-    origin: (origin, callback) => {
-      if (
-        !origin ||
-        allowedOrigins.includes(origin)
-      ) {
-        callback(null, true);
-        return;
-      }
+await app.register(cors, {
+  origin: (origin, callback) => {
+    if (
+      !origin ||
+      allowedOrigins.includes(origin)
+    ) {
+      callback(null, true);
+      return;
+    }
 
-      callback(
-        new Error(
-          `Origem não permitida: ${origin}`,
-        ),
-        false,
-      );
-    },
+    callback(
+      new Error(
+        `Origem não permitida: ${origin}`,
+      ),
+      false,
+    );
+  },
 
-    credentials: true,
+  credentials: true,
 
-    methods: [
-      "GET",
-      "HEAD",
-      "POST",
-      "PUT",
-      "PATCH",
-      "DELETE",
-      "OPTIONS",
-    ],
+  methods: [
+    "GET",
+    "HEAD",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS",
+  ],
 
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "x-signature",
-      "x-request-id",
-    ],
-  });
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "x-signature",
+    "x-request-id",
+  ],
+});
 
   await app.register(multipart, {
     limits: {
