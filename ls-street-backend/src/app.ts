@@ -221,9 +221,6 @@ await app.register(
       "/admin/favorites",
   },
 );
-await app.register(
-  errorHandlerPlugin,
-);
 
 
 
