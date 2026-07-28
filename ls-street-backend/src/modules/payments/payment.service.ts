@@ -3,7 +3,7 @@ import { AppError } from "../../core/errors/app-error";
 import type {
   CreatePaymentBody,
 } from "./payment.schema";
-
+import { env } from "../../config/env";
 import { PaymentRepository } from "./payment.repository";
 
 import { MercadoPagoGateway } from
@@ -225,17 +225,10 @@ export class PaymentService {
   async processMercadoPagoWebhook(
   input: ProcessMercadoPagoWebhookInput,
 ) {
-  const webhookSecret =
-    process.env
-      .MERCADO_PAGO_WEBHOOK_SECRET;
+const webhookSecret =
+  env.MERCADO_PAGO_WEBHOOK_SECRET;
 
-  if (!webhookSecret) {
-    throw new AppError(
-      "Webhook do Mercado Pago não está configurado.",
-      500,
-      "MERCADO_PAGO_WEBHOOK_NOT_CONFIGURED",
-    );
-  }
+  
 
   if (!input.dataId) {
     throw new AppError(

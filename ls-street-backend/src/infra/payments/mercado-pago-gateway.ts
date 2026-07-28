@@ -6,7 +6,7 @@ import {
   InvalidWebhookSignatureError,
   WebhookSignatureValidator,
 } from "mercadopago";
-
+import { env } from "../../config/env";
 
 interface CreatePixPaymentInput {
   orderNumber: number;
@@ -171,9 +171,8 @@ async getOrderById(
       `ORDER-${input.orderNumber}`;
 
     const isSandbox =
-      process.env.MERCADO_PAGO_SANDBOX ===
-      "true";
-
+  env.MERCADO_PAGO_SANDBOX;
+  
     const payerEmail = isSandbox
       ? "comprador@testuser.com"
       : input.payerEmail;

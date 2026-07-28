@@ -11,9 +11,27 @@ const envSchema = z.object({
 
   DATABASE_URL: z.string().min(1),
 
-  MERCADO_PAGO_ACCESS_TOKEN: z
+MERCADO_PAGO_ACCESS_TOKEN: z
   .string()
-  .min(1, "MERCADO_PAGO_ACCESS_TOKEN é obrigatório."),
+  .min(
+    1,
+    "MERCADO_PAGO_ACCESS_TOKEN é obrigatório.",
+  ),
+
+MERCADO_PAGO_SANDBOX: z
+  .string()
+  .default("true")
+  .transform(
+    (value) => value === "true",
+  ),
+
+MERCADO_PAGO_WEBHOOK_SECRET: z
+  .string()
+  .min(
+    1,
+    "MERCADO_PAGO_WEBHOOK_SECRET é obrigatório.",
+  ),
+  
 
   JWT_ACCESS_SECRET: z.string().min(32),
   JWT_ACCESS_EXPIRES_IN: z.string().default("15m"),
