@@ -242,16 +242,12 @@ export default function App() {
 >
   <Route
     path="/minha-conta"
-    element={
-      <CustomerAccountPage />
-    }
+    element={<CustomerAccountPage />}
   />
 
   <Route
     path="/minha-conta/pedidos"
-    element={
-      <CustomerOrdersPage />
-    }
+    element={<CustomerOrdersPage />}
   />
 
   <Route
@@ -267,21 +263,17 @@ export default function App() {
       <CustomerFavoritesPage />
     }
   />
+
+  <Route
+    path="/carrinho"
+    element={<StoreCartPage />}
+  />
+
+  <Route
+    path="/checkout"
+    element={<StoreCheckoutPage />}
+  />
 </Route>
-
-        <Route
-          path="/carrinho"
-          element={
-            <StoreCartPage />
-          }
-        />
-
-        <Route
-  path="/checkout"
-  element={
-    <StoreCheckoutPage />
-  }
-/>
       </Route>
 
       <Route
