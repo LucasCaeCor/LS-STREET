@@ -163,7 +163,10 @@ export class AuthController {
       path: "/auth",
       httpOnly: true,
       secure: env.COOKIE_SECURE,
-      sameSite: "lax",
+      sameSite:
+  env.NODE_ENV === "production"
+    ? "none"
+    : "lax",
       expires: expiresAt,
       domain: env.COOKIE_DOMAIN || undefined,
     });
@@ -174,7 +177,10 @@ export class AuthController {
       path: "/auth",
       httpOnly: true,
       secure: env.COOKIE_SECURE,
-      sameSite: "lax",
+      sameSite:
+  env.NODE_ENV === "production"
+    ? "none"
+    : "lax",
       domain: env.COOKIE_DOMAIN || undefined,
     });
   }

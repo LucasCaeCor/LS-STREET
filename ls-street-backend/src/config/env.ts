@@ -32,9 +32,8 @@ const envSchema = z.object({
   COOKIE_DOMAIN: z.string().optional(),
 
   API_URL: z
-    .string()
-    .url()
-    .default("http://localhost:3333"),
+  .string()
+  .url(),
 
   CLOUDINARY_CLOUD_NAME: z
     .string()
