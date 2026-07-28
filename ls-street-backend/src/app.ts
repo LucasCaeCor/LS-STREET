@@ -86,7 +86,7 @@ export async function buildApp() {
     registerErrorSchemas(app);
   
   await app.register(cors, {
-  origin: "http://localhost:5173",
+  origin: env.API_URL,
 
   credentials: true,
 
