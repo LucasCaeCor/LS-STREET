@@ -295,7 +295,7 @@ async hasOrderItems(id: string) {
       };
 
     const [variants, totalItems] =
-      await this.prisma.$transaction([
+      await Promise.all([
         this.prisma.productVariant.findMany({
           where,
           include: includeVariant,

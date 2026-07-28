@@ -273,8 +273,7 @@ export class InventoryRepository {
       movements,
       totalItems,
     ] =
-      await this.prisma
-        .$transaction([
+      await await Promise.all([
           this.prisma
             .inventoryMovement
             .findMany({

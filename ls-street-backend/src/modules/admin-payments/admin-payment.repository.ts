@@ -206,8 +206,7 @@ export class AdminPaymentRepository {
       payments,
       totalItems,
     ] =
-      await this.prisma
-        .$transaction([
+      await Promise.all([
           this.prisma.payment
             .findMany({
               where,

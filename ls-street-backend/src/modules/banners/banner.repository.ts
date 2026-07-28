@@ -148,8 +148,7 @@ export class BannerRepository {
       banners,
       totalItems,
     ] =
-      await this.prisma
-        .$transaction([
+      await Promise.all([
           this.prisma.banner
             .findMany({
               where,

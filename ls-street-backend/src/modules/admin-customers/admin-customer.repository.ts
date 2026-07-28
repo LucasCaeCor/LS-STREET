@@ -244,8 +244,7 @@ export class AdminCustomerRepository {
       customers,
       totalItems,
     ] =
-      await this.prisma
-        .$transaction([
+      await await Promise.all([
           this.prisma.user
             .findMany({
               where,
@@ -284,8 +283,7 @@ export class AdminCustomerRepository {
       blocked,
       verified,
     ] =
-      await this.prisma
-        .$transaction([
+      await Promise.all([
           this.prisma.user
             .count({
               where:

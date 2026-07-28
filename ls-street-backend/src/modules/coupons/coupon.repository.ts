@@ -154,8 +154,7 @@ export class CouponRepository {
       coupons,
       totalItems,
     ] =
-      await this.prisma
-        .$transaction([
+      await Promise.all([
           this.prisma.coupon
             .findMany({
               where,

@@ -173,8 +173,7 @@ export class AdminAuditRepository {
       auditLogs,
       totalItems,
     ] =
-      await this.prisma
-        .$transaction([
+      await Promise.all([
           this.prisma
             .auditLog
             .findMany({

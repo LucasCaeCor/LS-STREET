@@ -236,7 +236,7 @@ export class OrderRepository {
   };
 
   const [orders, totalItems] =
-    await this.prisma.$transaction([
+    await Promise.all([
       this.prisma.order.findMany({
         where,
 
@@ -357,7 +357,7 @@ async updateStatus(
     
 
     const [orders, totalItems] =
-      await this.prisma.$transaction([
+      await Promise.all([
         this.prisma.order.findMany({
           where: {
             userId,
