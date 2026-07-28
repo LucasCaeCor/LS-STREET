@@ -79,56 +79,36 @@ export async function buildApp() {
         censor: "[REDACTED]",
       },
     },
+    disableRequestLogging: env.NODE_ENV === "test",
 
-    disableRequestLogging:
-      env.NODE_ENV === "test",
   });
-
-  registerProductImageSchemas(app);
-  registerErrorSchemas(app);
-
-  const allowedOrigins = [
-    "http://localhost:5173",
-    "https://projeto-alura-t7zl.vercel.app",
-  ];
-
+    registerProductImageSchemas(app);
+    registerErrorSchemas(app);
+  
   await app.register(cors, {
-    origin: (origin, callback) => {
-      if (
-        !origin ||
-        allowedOrigins.includes(origin)
-      ) {
-        callback(null, true);
-        return;
-      }
+  // origin: "http://localhost:5173",
+origin: env.API_URL,
 
-      callback(
-        new Error(
-          `Origem não permitida pelo CORS: ${origin}`,
-        ),
-        false,
-      );
-    },
 
-    credentials: true,
+  credentials: true,
 
-    methods: [
-      "GET",
-      "HEAD",
-      "POST",
-      "PUT",
-      "PATCH",
-      "DELETE",
-      "OPTIONS",
-    ],
+  methods: [
+    "GET",
+    "HEAD",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS",
+  ],
 
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "x-signature",
-      "x-request-id",
-    ],
-  });
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "x-signature",
+    "x-request-id",
+  ],
+});
 
     await app.register(multipart, {
     limits: {
